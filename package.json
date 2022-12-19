@@ -1,0 +1,34 @@
+{
+  "name": "vite",
+  "version": "5.0.0",
+  "private": true,
+  "main": "./public/main.js",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "esbuild-cjs": "esbuild main.js --format=cjs --outfile=./public/main.js",
+    "electron:dev": "npm run esbuild-cjs && IS_IN_DEVELOPMENT=true electron .",
+    "electron:build": "npm run esbuild-cjs && electron-packager --out=release ."
+  },
+  "dependencies": {
+    "@emotion/react": "latest",
+    "@emotion/styled": "latest",
+    "@mui/material": "latest",
+    "@mui/x-date-pickers": "^5.0.10",
+    "date-fns": "^2.29.3",
+    "dayjs": "^1.11.7",
+    "luxon": "^3.1.1",
+    "moment": "^2.29.4",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "latest",
+    "electron": "^22.0.0",
+    "electron-is-dev": "^2.0.0",
+    "electron-packager": "^17.1.1",
+    "esbuild": "^0.16.8",
+    "vite": "latest"
+  }
+}
