@@ -4,6 +4,13 @@ import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Container from '@mui/material/Container'
+
+import axios from 'axios';
+import {useQuery} from 'react-query'
+import PasienTable from '../component/pasienTable'
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -47,24 +54,41 @@ const Search = styled('div')(({ theme }) => ({
     },
   }));
 
+
+
 export default function CariPasien() {
   const [value, setValue] = React.useState(null);
+  const { isLoading, isError, data, error, refetch } = useQuery(
+    "pasien",
+    async () => {
+      const { data } = await axios("http://localhost:5000/pasien");
+      return data;
+    }
+  );
 
   return (
-    <React.Fragment>
-    <Box sx={{ my: 10, alignItems : 'center'}}>
-        <Search>
-                <SearchIconWrapper>
-                    <SearchIcon />
-                </SearchIconWrapper>
-                <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ 'aria-label': 'search' }}
-                />
-        </Search>
-        
-        <Button variant="contained" sx={{ mt: 2}} color='warning'>Cari Pasien</Button>
+    <Container maxWidth='md'>
+      <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
+          <Typography component="h1" variant="h4" align="center" sx={{ my: 2 }}>
+            Cari Pasien
+          </Typography>          
+          <Box sx={{ my: 10}}>
+              <Search>
+                      <SearchIconWrapper>
+                          <SearchIcon />
+                      </SearchIconWrapper>
+                      <StyledInputBase
+                      placeholder="Search…"
+                      inputProps={{ 'aria-label': 'search' }}
+                      />
+              </Search>                
+              <Button variant="contained" sx={{ mt: 2, ml: 'auto'}} fullWidth>Cari Pasien</Button>
+          </Box>
+        </Paper>
+    
+    <Box>      
+      <PasienTable />
     </Box>
-    </React.Fragment>
+    </Container>
   );
 }

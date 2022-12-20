@@ -7,18 +7,23 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Paper from '@mui/material/Paper';
 
+import {Routes,Route, Link as Links} from 'react-router-dom'
+
 import FormRekamMedik from './pages/FormRekamMedik';
-import FormPasienBaru from './pages/FormPasienBaru'
+import FormPasienBaru from './pages/FormPasienBaru';
+import CariPasien from './pages/CariPasien';
+import Pasien from './pages/Pasien'
 
 export default function App() {
+  
+
   return (
-    <React.Fragment>
+    <Box sx={{ pb: 5, backgroundColor:'rgb(227, 242, 253)'}}>
       <AppBar
-        position="absolute"
-        color="default"
+        position="absolute"        
         elevation={0}
         sx={{
-          position: 'relative',
+          position: 'relative',          
           borderBottom: (t) => `1px solid ${t.palette.divider}`,
         }}
       >
@@ -26,29 +31,25 @@ export default function App() {
           <Typography variant="h6" color="inherit" noWrap>
             Company name
           </Typography>
+          <Box sx={{ ml: 'auto', display: 'block'}}>
+            <Button variant='text' color='inherit' component={Links} to="/" >Home</Button>
+            <Button variant='text' color='inherit' component={Links} to="/rekam">Rekam Medik</Button>
+            <Button variant='text' color='inherit' component={Links} to="/pasien">Pasien</Button>
+            <Button variant='text' color='inherit' component={Links} to="/pasien/insert">Pasien Baru</Button>
+          </Box>
         </Toolbar>
       </AppBar>
-      <Container component="main" maxWidth="sm" sx={{ mb: 4, }}>
-        <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
-          <Typography component="h1" variant="h4" align="center" sx={{ my: 2 }}>
-            Rekam Medik
-          </Typography>          
-            <React.Fragment> 
-              {/* <CariPasien />              */}
-              {/* <AddressForm /> */}
-              <FormRekamMedik />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>                
-                {/* <Button
-                  variant="contained"                  
-                  // sx={{ mt: 3, ml: 1 }}
-                >
-                  Simpan
-                </Button> */}
-              </Box>
-            </React.Fragment>          
-        </Paper>
-        {/* <Copyright /> */}
+      <Container sx={{ mb: 4}}>
+            <React.Fragment>    
+              <Routes>
+                <Route index element={<CariPasien />} />
+                <Route path='pasien/insert' element={<FormPasienBaru />} />
+                <Route path="rekam" element={<FormRekamMedik />} />                
+                <Route path="pasien" element={<Pasien />} />
+                <Route path="pasien/:pasien_id" element={<Pasien />} />                
+              </Routes>           
+            </React.Fragment>                  
       </Container>
-      </React.Fragment>
+      </Box>
   );
 }

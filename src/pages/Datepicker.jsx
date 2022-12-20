@@ -6,13 +6,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment'
 
-export default function BasicDatePicker({setTanggal}) {
-  const [value, setValue] = React.useState(Date());  
-
-  const setDate = (values) => {
-    setTanggal(new Date(values).toString());
-    setValue(values);
-  }
+export default function BasicDatePicker(props) {
+  const [value, setValue] = React.useState(Date());    
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -20,7 +15,8 @@ export default function BasicDatePicker({setTanggal}) {
         label="Tanggal Konsultasi"
         value={value}
         onChange={(newValue) => {          
-          setDate(newValue);
+          props.setTanggal(new Date(newValue).toString())
+          setValue(newValue)
         }}
         renderInput={(params) => <TextField {...params} variant='standard' />}
       />            
