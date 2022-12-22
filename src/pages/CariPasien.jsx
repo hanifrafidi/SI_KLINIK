@@ -7,10 +7,15 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container'
+import TextField from '@mui/material/TextField'
+import Grid from '@mui/material/Grid'
 
 import axios from 'axios';
-import {useQuery} from 'react-query'
 import PasienTable from '../component/pasienTable'
+import {useForm} from 'react-hook-form'
+import {useMutation, useQuery} from 'react-query'
+import {useNavigate, Link} from 'react-router-dom'
+
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -57,38 +62,77 @@ const Search = styled('div')(({ theme }) => ({
 
 
 export default function CariPasien() {
-  const [value, setValue] = React.useState(null);
-  const { isLoading, isError, data, error, refetch } = useQuery(
-    "pasien",
-    async () => {
-      const { data } = await axios("http://localhost:5000/pasien");
-      return data;
+  const [value, setValue] = React.useState(null);  
+
+  const { register, handleSubmit} = useForm();
+
+  const [pasien, setPasien] = React.useState([])
+
+  const insertData = async (data) => {
+    const dataa = await axios.post('http://localhost:5000/pasien/cari', data)    
+    console.log(dataa)
+    setPasien(dataa)
+  }    
+
+  const mutation = useMutation(insertData)  
+
+  const onSubmit = data => {    
+    mutation.mutate(data)    
+    // console.log(data)
+  }  
+
+  const navigate = useNavigate();    
+
+    const openPasienPage = (id) => {
+
+      navigate('/pasien/' + id);
     }
-  );
 
   return (
-    <Container maxWidth='md'>
-      <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
-          <Typography component="h1" variant="h4" align="center" sx={{ my: 2 }}>
-            Cari Pasien
-          </Typography>          
-          <Box sx={{ my: 10}}>
-              <Search>
-                      <SearchIconWrapper>
-                          <SearchIcon />
-                      </SearchIconWrapper>
-                      <StyledInputBase
-                      placeholder="Search…"
-                      inputProps={{ 'aria-label': 'search' }}
-                      />
-              </Search>                
-              <Button variant="contained" sx={{ mt: 2, ml: 'auto'}} fullWidth>Cari Pasien</Button>
+    <Container maxWidth='lg'>
+      <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>        
+          <Box sx={{ my: 5, display: 'flex', alignItems : 'center', justifyContent: 'center'}}>              
+          <form onSubmit={handleSubmit(onSubmit)}>
+              <TextField size='small' sx={{ ml: 1 }} {...register('input')} />              
+              <Button sx={{ ml: 2}} size='medium' variant="contained" type='submit'>
+               <SearchIcon sx={{ mr : 1}} /> Cari Pasien
+              </Button>
+          </form>
           </Box>
-        </Paper>
-    
-    <Box>      
-      <PasienTable />
-    </Box>
+      </Paper>          
+      <Grid container>
+        <Grid item xs={6}>
+        <Paper sx={{ minHeight: 300, p: 2, display: 'flex', flexDirection: 'column'}}>                            
+        {          
+          pasien.data !== undefined ?
+          pasien.data.length === 0 ?
+          <Box sx={{ p: 2}}>
+            pasien belum terdaftar
+            <Button 
+                component={Link} 
+                to='pasien/insert' 
+                variant='contained' 
+                color='success' 
+                size='small'>
+                  Tambah Pasien
+            </Button>
+          </Box> :
+          pasien.data.map((item) => (       
+            <Typography 
+              key={item._id}   
+              variant='h6'
+              onClick={() => openPasienPage(item._id)}>
+                {item.namaDepan}
+            </Typography>      
+          ))
+          : ''
+        }
+      </Paper>
+        </Grid>
+        <Grid item xs={6}>
+          <PasienTable />
+        </Grid>
+      </Grid>
     </Container>
   );
 }

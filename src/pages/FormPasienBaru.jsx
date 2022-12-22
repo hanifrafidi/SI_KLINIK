@@ -82,7 +82,8 @@ export default function AddressForm() {
             <FormControl variant="standard" sx={{ minWidth: '100%' }}>
               <InputLabel id="jenisKelamin">Jenis Kelamin</InputLabel>
               <Select      
-                label='Jenis Kelamin'        
+                label='Jenis Kelamin'
+                defaultValue=''        
                 {...register('jenisKelamin')}              
               >
                 <MenuItem value=""></MenuItem>
@@ -102,7 +103,8 @@ export default function AddressForm() {
           <Grid item xs={12} sm={6}>
             <FormControl variant="standard" sx={{ minWidth: '100%' }}>
               <InputLabel id="pekerjaan">Pekerjaan</InputLabel>
-              <Select              
+              <Select
+                defaultValue=''
                 {...register('pekerjaan')}
               >
                 <MenuItem value="tidak bekerja">
