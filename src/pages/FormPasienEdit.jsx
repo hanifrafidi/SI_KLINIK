@@ -16,8 +16,7 @@ import {useMutation, useQuery} from 'react-query'
 import {useForm, Controller} from 'react-hook-form'
 import {useParams} from 'react-router-dom'
 
-export default function AddressForm() {
-  
+export default function AddressForm() {  
 
   const {pasien_id} = useParams()
   const pasien = useQuery(
@@ -38,11 +37,7 @@ export default function AddressForm() {
       titles.forEach( title => setValue(title,data[title]))      
       return data
     }    
-  );  
-
-  React.useEffect(()=>{
-    
-  }, [])
+  );    
 
   const { register, handleSubmit, setValue, control} = useForm({        
   });
@@ -138,7 +133,7 @@ export default function AddressForm() {
           </Grid>
           <Grid item xs={12} sm={6}>            
             <FormControl variant="standard" sx={{ minWidth: '100%' }}>
-              <InputLabel id="jenisKelamin">Jenis Kelamin</InputLabel>
+              <InputLabel id="pekerjaan">Pekerjaan</InputLabel>
               <Controller                
                 name="pekerjaan"
                 control={control}

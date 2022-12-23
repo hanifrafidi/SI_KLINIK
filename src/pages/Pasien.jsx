@@ -11,41 +11,43 @@ import {
 } from '@mui/material'
 
 import {useParams, Link} from 'react-router-dom'
-import {useQuery} from 'react-query'
-import axios from 'axios'
+import {useQuery, useMutation} from 'react-query'
+import PasienService from '../../service/PasienService'
+import RekamMedikTable from '../component/RekamMedikTable'
 
 export default function Pasien() {
-  const {pasien_id} = useParams()    
+  const {pasien_id} = useParams()      
+  const [pasienData,setPasienData] = React.useState()
     
-  const pasien = useQuery(
-    "pasien",
-    async () => {
-      const { data } = await axios("http://localhost:5000/pasien/" + pasien_id);
-      return data;
-    }    
-  );
+  const pasien = useQuery("pasien", () => 
+    PasienService.getOne(pasien_id))
+  
+  const deleteRecord = async (pasien_id) => {
+    return await PasienService.delete(pasien_id).then((response) => console.log(response))
+  }
 
-  const rekam = useQuery(
-    "rekam",
-    async () => {
-      const { data } = await axios("http://localhost:5000/rekam/cari/" + pasien_id);
-      console.log(data)
-      return data;
-    }    
-  );
+  const mutation = useMutation(deleteRecord)  
 
-  return (
-    pasien.isLoading ? <>Loading</>
-    :
+  const onSubmit = data => {    
+    mutation.mutate(data)    
+    
+  }    
+
+  return (    
     <Container maxWidth='lg' sx={{ mt: 3}}>         
       <Paper 
         sx={{
-          padding: 3,
-          
+          padding: 3,          
         }}
       >        
         <Grid container>
-          <Grid item xs={7}>
+          {
+            pasien.isLoading ? <>Loading</> :            
+            pasien.isError ? <>Error Silahkan Cek Koneksi Anda</> 
+            : pasien.data === null || pasien.data === undefined ? ''
+            :
+            <>
+            <Grid item xs={7}>
             <Typography variant='h4'>{pasien.data.namaDepan}</Typography>        
             <Box sx={{ display: 'flex', flexDirection: 'row'}}>
               <Typography variant='body2' sx={{ mr: 2}}>{pasien.data.alamat}</Typography>              
@@ -66,14 +68,20 @@ export default function Pasien() {
           </Grid>
           <Grid item xs={12} sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end'}}>
             <Button variant='contained' color='primary' size='small' component={Link} to={'/pasien/edit/' + pasien.data._id}>Edit</Button>
-            <Button variant='contained' color='error' size='small' component={Link} to={'/pasien/edit/' + pasien.data._id}>Hapus</Button>
+            <Button variant='contained' color='error' size='small' onClick={() => deleteRecord(pasien.data._id)}>Hapus</Button>
           </Grid>
+            </>
+          }
+          
         </Grid>          
       </Paper>
       <Paper sx={{ mt: 2, p: 3}}>
         <Box sx={{ display : 'flex', alignItems: 'center', justifyContent:'space-between'}}>
           <Typography variant='h6'>Rekam Medik</Typography>
           <Button variant='contained' component={Link} to={'/pasien/rekam/insert/' + pasien_id}>Tambah Rekam Medik</Button>
+        </Box>
+        <Box sx={{ mt: 2}}>
+          <RekamMedikTable id_pasien={pasien_id}/>
         </Box>
       </Paper>
     </Container>

@@ -14,6 +14,7 @@ import Select from '@mui/material/Select';
 import axios from "axios";
 import {useMutation, useQuery} from 'react-query'
 import {useForm} from 'react-hook-form'
+import PasienService from '../../service/PasienService'
 
 export default function AddressForm() {
   const { register, handleSubmit, setValue} = useForm({    
@@ -31,14 +32,14 @@ export default function AddressForm() {
   }
   });
 
-  const insertData = async (data) => {
-    const {response} = await axios.post('http://localhost:5000/pasien/insert', data)    
-    console.log(response)
+  const insertData = async (data) => {    
+    return await PasienService.create(data).then(response => { console.log(response)})
   }    
 
   const mutation = useMutation(insertData)  
 
-  const onSubmit = data => {    
+  const onSubmit = (data,event) => {    
+    event.preventDefault()
     mutation.mutate(data)    
     console.log(data)
   }  
@@ -50,9 +51,6 @@ export default function AddressForm() {
           Pasien Baru
         </Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
-        <Typography variant="h6" gutterBottom sx={{ my: 6}}>
-          
-        </Typography>
         <Grid container spacing={4}>
           <Grid item xs={12} sm={6}>
             <TextField          

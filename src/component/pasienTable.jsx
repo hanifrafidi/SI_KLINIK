@@ -9,40 +9,35 @@ import Paper from '@mui/material/Paper';
 
 import {useQuery} from 'react-query'
 import {Link, useNavigate} from 'react-router-dom'
-import axios from 'axios'
+import PasienService from '../../service/PasienService'
 import { Typography } from '@mui/material';
+import axios from 'axios'
 
 export default function PasienTable() {      
 
-    const navigate = useNavigate();    
+  const navigate = useNavigate();    
 
-    const openPasienPage = (id) => {
+  const openPasienPage = (id) => {
 
-      navigate('/pasien/' + id);
-    }
-
-  const pasien = useQuery(
-    "pasien",
-    async () => {
-      const { data } = await axios("http://localhost:5000/pasien");
-      return data;
-    }    
-  ); 
-
-  // React.useEffect(() => {}, [pasien])
-
-  if (pasien.isLoading) {
-        return <p>Loading...
-          {console.log(pasien)}
-        </p>
+    navigate('/pasien/' + id);
   }
-  else if(pasien.isError) {
-    return <p>Error: Error Bro
-      {console.log(pasien)}
-    </p>
-  }  
-  else{
-    // return console.log(pasien)
+
+  const [pasienData, setPasienData] = React.useState([])
+
+  const pasien = useQuery("pasien", () => 
+  PasienService.getAll().then(
+    (data) => { 
+      setPasienData(data);
+  })); 
+  
+
+  React.useEffect(() => {  
+    // setPasienData(pasien.data);
+    if(pasien.isError){
+      console.log(pasien)
+    }
+  }, [])
+  
   return (        
     <TableContainer component={Paper}>
       
@@ -57,17 +52,20 @@ export default function PasienTable() {
           </TableRow>
         </TableHead>
         <TableBody>                   
-          {                             
-            pasien.data !== undefined ?
-            pasien.data.length === 0 ?
-            'Data tidak ada' :
-            pasien.data.map((item) => (
+          {                                                   
+            pasien.isLoading ?
+            <TableRow><TableCell>Loading...</TableCell></TableRow>:
+            pasien.isError ?
+            <TableRow><TableCell>Error cek koneksi anda</TableCell></TableRow>:
+            typeof pasienData !== undefined ?           
+            // console.log(pasienData)
+            pasienData.map((item) => (
                 <TableRow
                 key={item._id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}
                 onClick={() => openPasienPage(item._id)}
-                >
-                <TableCell component="th" scope="row">
+                >                
+                <TableCell component="th" scope="row" >
                     {item.namaDepan}
                 </TableCell>
                 <TableCell align="right">{item.alamat}</TableCell>
@@ -75,14 +73,15 @@ export default function PasienTable() {
                 <TableCell align="right">{item.notelp}</TableCell>                
                 </TableRow>
             ))                         
-            : ''
+            :
+            <TableRow><TableCell>Tidak ada</TableCell></TableRow>
           }
         </TableBody>
       </Table>
     </TableContainer>
     );
   
-  }
+  
 }
 
     // <TableContainer component={Paper}>
