@@ -15,44 +15,54 @@ import axios from "axios";
 import {useMutation, useQuery} from 'react-query'
 import {useForm, Controller} from 'react-hook-form'
 import {useParams} from 'react-router-dom'
+import PasienService from '../../service/PasienService';
 
 export default function AddressForm() {  
 
-  const {pasien_id} = useParams()
-  const pasien = useQuery(
-    "pasien",
-    async () => {
-      const { data } = await axios("http://localhost:5000/pasien/" + pasien_id);            
-      const titles = [
-        'namaDepan',
-        'namaBelakang',
-        'alamat',        
-        'umur',
-        'pekerjaan',
-        'jenisKelamin',
-        'notelp',
-        'alergi',
-        'penyakit'
-      ]      
-      titles.forEach( title => setValue(title,data[title]))      
-      return data
-    }    
-  );    
+  const {pasien_id,type} = useParams()
+  const titles = [
+    'namaDepan',
+    'namaBelakang',
+    'alamat',        
+    'umur',
+    'pekerjaan',
+    'jenisKelamin',
+    'notelp',
+    'alergi',
+    'penyakit'
+  ]        
 
   const { register, handleSubmit, setValue, control} = useForm({        
   });
 
-  const editData = async (data) => {
-    const {response} = await axios.post('http://localhost:5000/pasien/edit/' + pasien_id, data)    
+  
+  const createData = async (data) => {
+    const {response} = await PasienService.create(data)    
     console.log(response)
   }    
-
-  const mutation = useMutation(editData)  
+  const updateData = async (datas) => {
+    // return await PasienService.update(pasien_id, datas).then(response => console.log(response))    
+    const {response} = await PasienService.update(pasien_id, datas)
+    return console.log(response)
+  }
+  
+  const createMutation = useMutation(createData)  
+  const updateMutation = useMutation(updateData)  
 
   const onSubmit = data => {    
-    mutation.mutate(data)    
+    type === 'edit' ? updateMutation.mutate(data) : createMutation.mutate(data)    
     // console.log(data)
   }  
+
+  React.useEffect(() => {
+    if(type === 'edit') {      
+      PasienService.getOne(pasien_id).then((data) => {
+        titles.forEach( title => setValue(title, data[title]))
+        console.log(data)
+      })      
+    }
+    // console.log(rekam)
+  },[])
 
   return (
     <Container maxWidth='sm'>
@@ -60,16 +70,7 @@ export default function AddressForm() {
         <Typography component="h1" variant="h4" align="center" sx={{ my: 2 }}>
           Pasien Baru
         </Typography>
-        { 
-          pasien.isLoading ? 
-          <>Loading...</>
-          :
-          pasien.isError ? 
-          <>Error</>
-          : 
-          pasien.data === null || pasien.data === undefined ?
-          'kosong'
-          :
+        {                     
           <form onSubmit={handleSubmit(onSubmit)}>
         <Typography variant="h6" gutterBottom sx={{ my: 6}}>
           

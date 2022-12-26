@@ -15,12 +15,14 @@ import DatePicker from '../pages/Datepicker'
 
 import axios from "axios";
 import {useMutation, useQuery} from 'react-query'
-import {useForm} from 'react-hook-form'
+import {useForm, Controller} from 'react-hook-form'
 import {useParams} from 'react-router-dom'
+import PasienService from '../../service/PasienService';
+import RekamMedikService from '../../service/RekamMedikService';
 
 export default function AddressForm() {
-  const {pasien_id} = useParams();    
-  const { register, handleSubmit, setValue} = useForm({    
+  const {type, rekam_id, pasien_id} = useParams();    
+  const { register, handleSubmit, setValue, control} = useForm({    
     defaultValues: {
       pasien_id : pasien_id,
       dokter : '',
@@ -29,43 +31,52 @@ export default function AddressForm() {
       tanggal: new Date().toString(),
   }
   });
+  const titles = [
+    'diagnosa',
+    'dokter',
+    'tanggal',        
+    'tindakan',    
+  ]      
   var pasienid = 0
 
   if(typeof pasien_id !== 'undefined'){
     pasienid = pasien_id
   }
-
-  const pasien = useQuery(
-    "pasien",
-    async () => {      
-        const { data } = await axios("http://localhost:5000/pasien/" + pasienid);
-        return data;      
-    }    
-  );  
-
-  // const dokterData = useQuery(
-  //   "dokter",
-  //   async () => {
-  //     const { data } = await axios("http://localhost:5000/dokter/");      
-  //     return data;
-  //   }    
-  // );
+  
+  const pasien = useQuery("pasien", () => PasienService.getOne(pasienid))    
 
   const insertData = async (input) => {
-    const {response} = await axios.post('http://localhost:5000/rekam_medik/insert', input)    
+    const {response} = await RekamMedikService.create(input)    
+    console.log(response)
+  }    
+  const updateData = async (input) => {
+    const {response} = await RekamMedikService.update(rekam_id,input)
     console.log(response)
   }    
 
-  const mutation = useMutation(insertData)  
+  const createRekam = useMutation(insertData)
+  const updateRekam = useMutation(updateData)
 
   const onSubmit = data => {    
-    // console.log(data)
-    mutation.mutate(data) 
+    type === 'insert' ? 
+    createRekam.mutate(data) 
+    :
+    updateRekam.mutate(data)
 
   }  
 
+  React.useEffect(() => {
+    if(type === 'edit') {      
+      RekamMedikService.getOne(rekam_id).then((data) => {
+        titles.forEach( title => setValue(title, data[title]))
+        // console.log(data)
+      })      
+    }
+    // console.log(rekam)
+  },[])
+
   return (
-    <Container maxWidth="sm">          
+    <Container maxWidth="sm">              
       <Paper sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>      
         <Typography component="h1" variant="h4" align="center" sx={{ my: 2 }}>
           Rekam Medik
@@ -90,15 +101,42 @@ export default function AddressForm() {
           <Grid item xs={12} sm={6}>
             <FormControl variant="standard" sx={{ minWidth: '100%' }}>
               <InputLabel id="Dokter">Dokter</InputLabel>
-              <Select defaultValue='' {...register('dokter')}>              
+              <Controller                
+                name="dokter"
+                control={control}
+                defaultValue=''
+                render={({ field: { onChange, value } }) => (                
+                  
+                    <Select          
+                      name='dokter' 
+                      defaultValue=''   
+                      onChange={onChange}
+                      value={value}                      
+                    >
+                      <MenuItem value=''></MenuItem>
+                      <MenuItem value='laki'>Laki</MenuItem>
+                      <MenuItem value='perempuan'>Perempuan</MenuItem>              
+                    </Select>
+                  
+                )}
+              />
+              {/* <Select defaultValue='' {...register('dokter')}>              
                 <MenuItem value=''>Select...</MenuItem>
                 <MenuItem value={'laki'}>Laki</MenuItem>
                 <MenuItem value={'perempuan'}>Perempuan</MenuItem>              
-              </Select>
+              </Select> */}
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <DatePicker setTanggal={(date) => setValue('tanggal', date)} />          
+            {/* <DatePicker setTanggal={(date) => setValue('tanggal', date)} />    */}
+            <Controller                
+                name="tanggal"
+                control={control}                
+                render={({ field: { onChange, value } }) => (                                                      
+                    <DatePicker type={type} name='tanggal' onChange={onChange} value={value} />   
+                  
+                )}
+              />       
           </Grid>
           <Grid item xs={12}>
             <TextField

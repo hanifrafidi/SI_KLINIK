@@ -26,9 +26,11 @@ export default function PasienTable() {
 
   const pasien = useQuery("pasien", () => 
   PasienService.getAll().then(
-    (data) => { 
-      setPasienData(data);
-  })); 
+    data => { 
+      if(data !== undefined || null) {
+        setPasienData(data);
+      }
+  }));
   
 
   React.useEffect(() => {  
@@ -45,10 +47,10 @@ export default function PasienTable() {
         <TableHead>
           <TableRow>
             <TableCell>Nama</TableCell>
-            <TableCell align="right">Alamat</TableCell>
-            <TableCell align="right">Umur</TableCell>
-            <TableCell align="right">No Telepon</TableCell>            
-            <TableCell align="right">Option</TableCell>
+            <TableCell>Alamat</TableCell>
+            <TableCell>Umur</TableCell>
+            <TableCell>No Telepon</TableCell>            
+            {/* <TableCell>Option</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>                   
@@ -57,7 +59,7 @@ export default function PasienTable() {
             <TableRow><TableCell>Loading...</TableCell></TableRow>:
             pasien.isError ?
             <TableRow><TableCell>Error cek koneksi anda</TableCell></TableRow>:
-            typeof pasienData !== undefined ?           
+            typeof pasienData !== 'undefined' ?           
             // console.log(pasienData)
             pasienData.map((item) => (
                 <TableRow
@@ -68,13 +70,13 @@ export default function PasienTable() {
                 <TableCell component="th" scope="row" >
                     {item.namaDepan}
                 </TableCell>
-                <TableCell align="right">{item.alamat}</TableCell>
-                <TableCell align="right">{item.umur}</TableCell>
-                <TableCell align="right">{item.notelp}</TableCell>                
+                <TableCell>{item.alamat}</TableCell>
+                <TableCell>{item.umur}</TableCell>
+                <TableCell>{item.notelp}</TableCell>                
                 </TableRow>
             ))                         
             :
-            <TableRow><TableCell>Tidak ada</TableCell></TableRow>
+            <TableRow><TableCell>Tidak ada data pasien / cek koneksi anda</TableCell></TableRow>
           }
         </TableBody>
       </Table>

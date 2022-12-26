@@ -18,9 +18,15 @@ import RekamMedikTable from '../component/RekamMedikTable'
 export default function Pasien() {
   const {pasien_id} = useParams()      
   const [pasienData,setPasienData] = React.useState()
+
+  var pasienid = 0
+
+  if(typeof pasien_id !== 'undefined'){
+    pasienid = pasien_id
+  }
     
   const pasien = useQuery("pasien", () => 
-    PasienService.getOne(pasien_id))
+    PasienService.getOne(pasienid))
   
   const deleteRecord = async (pasien_id) => {
     return await PasienService.delete(pasien_id).then((response) => console.log(response))
@@ -44,7 +50,7 @@ export default function Pasien() {
           {
             pasien.isLoading ? <>Loading</> :            
             pasien.isError ? <>Error Silahkan Cek Koneksi Anda</> 
-            : pasien.data === null || pasien.data === undefined ? ''
+            : pasien.data === null || pasien.data === undefined ? <>Pasien tidak ditemukan</>
             :
             <>
             <Grid item xs={7}>
@@ -78,10 +84,10 @@ export default function Pasien() {
       <Paper sx={{ mt: 2, p: 3}}>
         <Box sx={{ display : 'flex', alignItems: 'center', justifyContent:'space-between'}}>
           <Typography variant='h6'>Rekam Medik</Typography>
-          <Button variant='contained' component={Link} to={'/pasien/rekam/insert/' + pasien_id}>Tambah Rekam Medik</Button>
+          <Button variant='contained' component={Link} to={'/rekam/insert/' + pasienid + '/0'}>Tambah Rekam Medik</Button>
         </Box>
         <Box sx={{ mt: 2}}>
-          <RekamMedikTable id_pasien={pasien_id}/>
+          <RekamMedikTable pasien_id={pasienid}/>
         </Box>
       </Paper>
     </Container>

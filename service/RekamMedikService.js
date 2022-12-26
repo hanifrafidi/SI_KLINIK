@@ -28,7 +28,7 @@ export default class ReKamMedikService {
     }
     static update(id_rekam, data) {
         return request({
-            method  : 'UPDATE',
+            method  : 'PUT',
             url     : '/rekam_medik/update/' + id_rekam,
             data    : data,
         })

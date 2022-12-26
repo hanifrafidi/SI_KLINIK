@@ -17,24 +17,33 @@ export default function RekamMedikTable(props) {
 
   const navigate = useNavigate();    
 
-  const openrekam_medikPage = (id) => {
+  const openrekam_medikPage = (pasien_id, rekam_id) => {
 
-    navigate('/rekam/edit/' + id);
+    navigate('/rekam/edit/'+ pasien_id + '/' + rekam_id);
   }
 
-  const [RekamMedikData, setrekam_medikData] = React.useState([])
+  const [RekamMedikData, setRekamMedikData] = React.useState([])
 
   const rekam_medik = useQuery("rekam_medik", () => 
-  RekamMedikService.getByPasien(props.id_pasien).then(
-    (data) => { 
-      // console.log(typeof rekam_medikData !== undefined)
-      setrekam_medikData(data);
-  })); 
+  
+  {
+    if(props.pasien_id === 0 || typeof props.pasien_id === "undefined"){
+      RekamMedikService.getAll().then(data => {
+        setRekamMedikData(data)
+      })
+    }else{
+      RekamMedikService.getByPasien(props.pasien_id).then(
+        (data) => { 
+          // console.log(typeof rekam_medikData !== undefined)
+          setRekamMedikData(data);
+      })
+    }
+  })
+  ; 
   
 
-  React.useEffect(() => {  
-    // setrekam_medikData(rekam_medik.data);
-    // console.log(RekamMedikData)    
+  React.useEffect(() => {      
+    
   }, [])
 
   if (rekam_medik.isLoading) {
@@ -53,38 +62,42 @@ export default function RekamMedikTable(props) {
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>            
+            <TableCell >Pasien</TableCell>
             <TableCell >Diagnosa</TableCell>
-            <TableCell align="right">Tindakan</TableCell>
-            <TableCell align="right">Dokter</TableCell>            
-            <TableCell align="right">Tanggal</TableCell>
+            <TableCell>Tindakan</TableCell>
+            <TableCell>Dokter</TableCell>            
+            <TableCell>Tanggal</TableCell>
           </TableRow>
-        </TableHead>
+        </TableHead>        
         <TableBody>                   
           {                                                   
             rekam_medik.isLoading ?
             <TableRow><TableCell>Loading...</TableCell></TableRow>:
             rekam_medik.isError ?
             <TableRow><TableCell>Error cek koneksi anda</TableCell></TableRow>:
-            typeof rekam_medikData !== undefined ?           
+            typeof RekamMedikData !== 'undefined' ?           
             // console.log(rekam_medikData)
             RekamMedikData.map((item) => (
                 <TableRow
                 key={item._id}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}
-                onClick={() => openrekam_medikPage(item._id)}
+                onClick={() => openrekam_medikPage(item.pasien_id, item._id)}
                 >                
+                <TableCell component="th" scope="row" >
+                    {item.pasien_id}
+                </TableCell>
                 <TableCell component="th" scope="row" >
                     {item.diagnosa}
                 </TableCell>
-                <TableCell align="right">{item.tindakan}</TableCell>
-                <TableCell align="right">{item.dokter}</TableCell>
-                <TableCell align="right">{item.tanggal}</TableCell>                
+                <TableCell >{item.tindakan}</TableCell>
+                <TableCell >{item.dokter}</TableCell>
+                <TableCell >{item.tanggal}</TableCell>                
                 </TableRow>
             ))                         
             :
-            <TableRow><TableCell>Tidak ada</TableCell></TableRow>
+            <TableRow><TableCell>Belum ada Rekam Medik</TableCell></TableRow>
           }
-        </TableBody>
+        </TableBody>        
       </Table>
     </TableContainer>
     );

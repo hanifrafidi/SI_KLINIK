@@ -11,9 +11,11 @@ import {Routes,Route, Link as Links} from 'react-router-dom'
 
 import FormRekamMedik from './pages/FormRekamMedik';
 import FormPasienBaru from './pages/FormPasienBaru';
-import FormPasienEdit from './pages/FormPasienEdit';
+import FormPasien from './pages/FormPasien';
 import CariPasien from './pages/CariPasien';
-import Pasien from './pages/Pasien'
+import PasienDetail from './pages/PasienDetail'
+import PasienList from './pages/PasienList'
+import RekamMedikList from './pages/RekamMedikList'
 
 export default function App() {
   
@@ -34,22 +36,21 @@ export default function App() {
           </Typography>
           <Box sx={{ ml: 'auto', display: 'block'}}>
             <Button variant='text' color='inherit' component={Links} to="/" >Home</Button>
-            <Button variant='text' color='inherit' component={Links} to="/rekam">Rekam Medik</Button>
-            {/* <Button variant='text' color='inherit' component={Links} to="/pasien">Pasien</Button> */}
-            <Button variant='text' color='inherit' component={Links} to="/pasien/insert">Pasien Baru</Button>
+            <Button variant='text' color='inherit' component={Links} to="/rekam_medik/list">Rekam Medik</Button>            
+            <Button variant='text' color='inherit' component={Links} to={"/pasien/list"}>Pasien</Button>
           </Box>
         </Toolbar>
       </AppBar>
       <Container sx={{ mb: 4}}>
             <React.Fragment>    
               <Routes>
-                <Route path='/' element={<CariPasien />} />
-                <Route path='pasien/insert' element={<FormPasienBaru />} />
-                <Route path='pasien/edit/:pasien_id' element={<FormPasienEdit />} />
-                <Route path="rekam" element={<FormRekamMedik />} />
-                <Route path="/pasien/rekam/insert/:pasien_id" element={<FormRekamMedik />} />
-                <Route path="pasien" element={<Pasien />} />
-                <Route path="pasien/:pasien_id" element={<Pasien />} />                
+                <Route path='/' element={<CariPasien />} />                                
+                <Route path="/pasien/list" element={<PasienList />} />   
+                <Route path="/rekam_medik/list" element={<RekamMedikList />} />
+                <Route path="/pasien/:pasien_id" element={<PasienDetail />} />   
+                <Route path="/rekam_medik" element={<FormRekamMedik />} />                
+                <Route path='/pasien/:type/:pasien_id' element={<FormPasien />} />                      
+                <Route path="/rekam/:type/:pasien_id/:rekam_id" element={<FormRekamMedik />} />                                       
               </Routes>           
             </React.Fragment>                  
       </Container>

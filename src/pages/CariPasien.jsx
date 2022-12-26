@@ -129,9 +129,9 @@ export default function CariPasien() {
         }
       </Paper>
         </Grid>
-        <Grid item xs={6}>
+        {/* <Grid item xs={6}>
           <PasienTable />
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   );

@@ -22,7 +22,7 @@ export default class PasienService {
     }
     static update(id, data) {
         return request({
-            method  : 'UPDATE',
+            method  : 'PUT',
             url     : '/pasien/update/' + id,
             data    : data,
         })
