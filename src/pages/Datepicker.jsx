@@ -17,15 +17,14 @@ export default function BasicDatePicker(props) {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DatePicker
-        label="Tanggal Konsultasi"
+      <DatePicker        
         name={props.name}
         value={props.value}
         onChange={(newValue) => {          
           props.onChange(new Date(newValue).toString())
           setValue(newValue)
         }}
-        renderInput={(params) => <TextField {...params} variant='standard' />}
+        renderInput={(params) => <TextField {...params} size='small' fullWidth />}
       />            
     </LocalizationProvider>    
   );

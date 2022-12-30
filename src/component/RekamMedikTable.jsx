@@ -5,13 +5,25 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Stack,
+  Divider,
+  Grid,
+  Avatar,
+  IconButton
+} from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import {useQuery} from 'react-query'
 import {Link, useNavigate} from 'react-router-dom'
 import RekamMedikService from '../../service/RekamMedikService'
-import { Typography } from '@mui/material';
-import axios from 'axios'
+import moment from 'moment'
 
 export default function RekamMedikTable(props) {      
 
@@ -28,20 +40,19 @@ export default function RekamMedikTable(props) {
   
   {
     if(props.pasien_id === 0 || typeof props.pasien_id === "undefined"){
-      RekamMedikService.getAll().then(data => {
+      RekamMedikService.getAll().then(data => {        
         setRekamMedikData(data)
+        
       })
     }else{
       RekamMedikService.getByPasien(props.pasien_id).then(
-        (data) => { 
-          // console.log(typeof rekam_medikData !== undefined)
-          setRekamMedikData(data);
+        (data) => {           
+          setRekamMedikData(data);          
       })
     }
   })
-  ; 
+  ;   
   
-
   React.useEffect(() => {      
     
   }, [])
@@ -57,9 +68,9 @@ export default function RekamMedikTable(props) {
   else{
     // return console.log(rekam_medik)
   return (        
-    <TableContainer component={Paper}>
+    <TableContainer >
       
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table aria-label="simple table">
         <TableHead>
           <TableRow>            
             <TableCell >Pasien</TableCell>
@@ -67,6 +78,7 @@ export default function RekamMedikTable(props) {
             <TableCell>Tindakan</TableCell>
             <TableCell>Dokter</TableCell>            
             <TableCell>Tanggal</TableCell>
+            <TableCell>Option</TableCell>
           </TableRow>
         </TableHead>        
         <TableBody>                   
@@ -75,29 +87,32 @@ export default function RekamMedikTable(props) {
             <TableRow><TableCell>Loading...</TableCell></TableRow>:
             rekam_medik.isError ?
             <TableRow><TableCell>Error cek koneksi anda</TableCell></TableRow>:
-            typeof RekamMedikData !== 'undefined' ?           
+            typeof RekamMedikData !== 'undefined' || RekamMedikData.length > 0 ?
             // console.log(rekam_medikData)
             RekamMedikData.map((item) => (
                 <TableRow
                 key={item._id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}
-                onClick={() => openrekam_medikPage(item.pasien_id, item._id)}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}                
                 >                
-                <TableCell component="th" scope="row" >
-                    {item.pasien_id}
+                <TableCell>
+                    {/* {item.pasien_id} */}
                 </TableCell>
-                <TableCell component="th" scope="row" >
+                <TableCell>
                     {item.diagnosa}
                 </TableCell>
                 <TableCell >{item.tindakan}</TableCell>
                 <TableCell >{item.dokter}</TableCell>
-                <TableCell >{item.tanggal}</TableCell>                
+                <TableCell >{moment(item.tanggal).format('DD-MMM-YY')}</TableCell>
+                <TableCell>
+                    <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/rekam/edit/' + item.pasien_id + '/' + item._id}><EditIcon /></IconButton>
+                    <IconButton aria-label='delete' color='error' size='small'  onClick={() => deleteRecord(item._id)}><DeleteIcon /></IconButton>                    
+                </TableCell>
                 </TableRow>
             ))                         
-            :
+            :            
             <TableRow><TableCell>Belum ada Rekam Medik</TableCell></TableRow>
           }
-        </TableBody>        
+        </TableBody>                
       </Table>
     </TableContainer>
     );

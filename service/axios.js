@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-const client = (() => {
+const client = (
+    () => {
     return axios.create({
         baseURL: 'http://localhost:5000',        
-    })
-})()
+    })}
+)()
 
 const request = async (options, store) => {
     const onSuccess = (response) => {

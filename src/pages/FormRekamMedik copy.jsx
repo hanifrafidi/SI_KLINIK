@@ -76,8 +76,8 @@ export default function AddressForm() {
   },[])
 
   return (
-    <Grid container>              
-      <Grid item>      
+    <Container maxWidth="sm">              
+      <Paper sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>      
         <Typography component="h1" variant="h4" align="center" sx={{ my: 2 }}>
           Rekam Medik
         </Typography>
@@ -91,17 +91,16 @@ export default function AddressForm() {
               pasien.isLoading ? <>Loading</> :
               pasien.data === null || pasien.data === undefined ? <>Pasien tidak ditemukan</>
               :
-              <Grid item>
-                <Typography variant='h6' sx={{ mb: 1}}>Pasien</Typography>
-                <Typography variant='body1' sx={{ mb: 1}}>{pasien.data.namaDepan}</Typography>
+              <>
+                <Typography variant='h6' sx={{ mt: 2 }}>Pasien : {pasien.data.namaDepan}</Typography>
                 <input type="text" value={pasien.data._id} {...register('pasien_id')} hidden />
-              </Grid>
+              </>
               
             }
           </Grid>
-          <Grid item xs={6}>
-            <FormControl size='small' sx={{ minWidth: '100%' }}>
-              <Typography variant='body1' sx={{ mb: 1}}>Dokter</Typography>
+          <Grid item xs={12} sm={6}>
+            <FormControl variant="standard" sx={{ minWidth: '100%' }}>
+              <InputLabel id="Dokter">Dokter</InputLabel>
               <Controller                
                 name="dokter"
                 control={control}
@@ -120,51 +119,55 @@ export default function AddressForm() {
                     </Select>
                   
                 )}
-              />              
+              />
+              {/* <Select defaultValue='' {...register('dokter')}>              
+                <MenuItem value=''>Select...</MenuItem>
+                <MenuItem value={'laki'}>Laki</MenuItem>
+                <MenuItem value={'perempuan'}>Perempuan</MenuItem>              
+              </Select> */}
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Tanggal</Typography>
+            {/* <DatePicker setTanggal={(date) => setValue('tanggal', date)} />    */}
             <Controller                
                 name="tanggal"
                 control={control}                
                 render={({ field: { onChange, value } }) => (                                                      
-                    <DatePicker type={type} name='tanggal' onChange={onChange} value={value} />                     
+                    <DatePicker type={type} name='tanggal' onChange={onChange} value={value} />   
+                  
                 )}
               />       
           </Grid>
-          <Grid item xs={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Diagnosa</Typography>
+          <Grid item xs={12}>
             <TextField
-              placeholder='Diagnosa'
+              id="diagnosa"
+              label="Diagnosa"
               multiline
               rows={4}            
-              {...register('diagnosa')}              
+              {...register('diagnosa')}
+              variant="standard"
               fullWidth
             />
           </Grid>
-          <Grid item xs={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Tindakan</Typography>
+          <Grid item xs={12}>
             <TextField
-              placeholder='Tindakan'
+              id="tindakan"
+              label="Tindakan"
               multiline
               rows={4}            
-              {...register('tindakan')}              
+              {...register('tindakan')}
+              variant="standard"
               fullWidth
             />
           </Grid>                
-          <Grid item container justifyContent='flex-end'>
-            <Button
-              variant='contained'              
-              type="submit"
-              >
-            Simpan Data
-            </Button>       
-          </Grid>
         </Grid>
-        
+        <Button
+        variant='contained'
+        sx={{ mr : 'auto', my: 2}}
+        type="submit"
+        >simpan</Button>       
         </form>       
-      </Grid>
-    </Grid>
+      </Paper>
+    </Container>
   );
 }

@@ -7,8 +7,12 @@ import {
   Button,
   Stack,
   Divider,
-  Grid  
+  Grid,
+  Avatar,
+  IconButton
 } from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import {useParams, Link} from 'react-router-dom'
 import {useQuery, useMutation} from 'react-query'
@@ -35,53 +39,67 @@ export default function Pasien() {
   const mutation = useMutation(deleteRecord)  
 
   const onSubmit = data => {    
-    mutation.mutate(data)    
-    
+    mutation.mutate(data)        
   }    
 
   return (    
-    <Container maxWidth='lg' sx={{ mt: 3}}>         
-      <Paper 
-        sx={{
-          padding: 3,          
-        }}
-      >        
-        <Grid container>
+    <Grid container spacing={10}>               
+      <Grid item container xs={12} spacing={2} sx={{ minHeight: 260 }}>
           {
             pasien.isLoading ? <>Loading</> :            
             pasien.isError ? <>Error Silahkan Cek Koneksi Anda</> 
-            : pasien.data === null || pasien.data === undefined ? <>Pasien tidak ditemukan</>
+            : pasien.data === null || typeof pasien.data === 'undefined' ? <></>
             :
             <>
-            <Grid item xs={7}>
-            <Typography variant='h4'>{pasien.data.namaDepan}</Typography>        
-            <Box sx={{ display: 'flex', flexDirection: 'row'}}>
-              <Typography variant='body2' sx={{ mr: 2}}>{pasien.data.alamat}</Typography>              
-              <Typography variant='body2'>{pasien.data._id}</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={5} container>
-            <Grid item xs={3}>
-              <Typography variant='body2'>Umur</Typography>              
-              <Typography variant='body2'>Jenis Kelamin</Typography>
-              <Typography variant='body2'>Pekerjaan</Typography>              
-            </Grid>            
-            <Grid item xs={6}>
-              <Typography variant='body2'>{pasien.data.umur}</Typography>
-              <Typography variant='body2'>{pasien.data.jenisKelamin}</Typography>
-              <Typography variant='body2'>{pasien.data.pekerjaan}</Typography>              
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end'}}>
-            <Button variant='contained' color='primary' size='small' component={Link} to={'/pasien/edit/' + pasien.data._id}>Edit</Button>
-            <Button variant='contained' color='error' size='small' onClick={() => deleteRecord(pasien.data._id)}>Hapus</Button>
-          </Grid>
-            </>
+              <Grid item xs={12} container justifyContent='space-between' alignItems='center'>
+                <Grid item container xs={6} alignItems='center'>
+                  <Avatar size='small' sx={{ mr: 2}}>H</Avatar>
+                  <Typography variant='h6'>{pasien.data.namaDepan} {pasien.data.namaBelakang}</Typography>
+                </Grid>
+                <Grid item container xs={6} justifyContent='flex-end'>                  
+                  <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end'}}>
+                    {/* <Typography variant='h6'>{pasien.data._id}</Typography> */}                    
+                    <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/pasien/edit/' + pasien.data._id}><EditIcon /></IconButton>
+                    <IconButton aria-label='delete' color='error' size='small'  onClick={() => deleteRecord(pasien.data._id)}><DeleteIcon /></IconButton>                    
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Divider />
+              <Grid item xs={12} container spacing={4}>
+                <Grid item container xs={12}>
+                  <Grid item xs={3}>
+                    <Typography variant='caption'>Nama</Typography>
+                    <Typography variant='body1' fontWeight='bold'>{pasien.data.namaDepan} {pasien.data.namaBelakang}</Typography>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Typography variant='caption'>Jenis Kelamin</Typography>
+                    <Typography variant='body1' fontWeight='bold'>{pasien.data.jenisKelamin}</Typography>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Typography variant='caption'>Umur</Typography>
+                    <Typography variant='body1' fontWeight='bold'>{pasien.data.umur}</Typography>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Typography variant='caption'>Pekerjaan</Typography>
+                    <Typography variant='body1' fontWeight='bold'>{pasien.data.pekerjaan}</Typography>
+                  </Grid> 
+              </Grid>
+              <Grid item container>
+                <Grid item xs={3}>
+                  <Typography variant='caption'>No Telepon</Typography>
+                  <Typography variant='body1' fontWeight='bold'>{pasien.data.notelp}</Typography>
+                </Grid>
+                <Grid item xs={9}>
+                  <Typography variant='caption'>Alamat</Typography>
+                  <Typography variant='body1' fontWeight='bold'>{pasien.data.alamat}</Typography>
+                </Grid>
+              </Grid>
+              </Grid>                          
+          </>
           }
-          
-        </Grid>          
-      </Paper>
-      <Paper sx={{ mt: 2, p: 3}}>
+        </Grid>                
+      
+      <Grid item xs={12}>
         <Box sx={{ display : 'flex', alignItems: 'center', justifyContent:'space-between'}}>
           <Typography variant='h6'>Rekam Medik</Typography>
           <Button variant='contained' component={Link} to={'/rekam/insert/' + pasienid + '/0'}>Tambah Rekam Medik</Button>
@@ -89,7 +107,7 @@ export default function Pasien() {
         <Box sx={{ mt: 2}}>
           <RekamMedikTable pasien_id={pasienid}/>
         </Box>
-      </Paper>
-    </Container>
+      </Grid>
+    </Grid>
   )
 }

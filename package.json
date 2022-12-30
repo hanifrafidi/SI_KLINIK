@@ -16,6 +16,7 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "latest",
+    "@mui/x-data-grid": "^5.17.17",
     "@mui/x-date-pickers": "^5.0.10",
     "axios": "^1.2.1",
     "date-fns": "^2.29.3",

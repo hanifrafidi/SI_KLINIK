@@ -23,7 +23,6 @@ root.render(
           <App />
         </ThemeProvider>
       </BrowserRouter>
-    </QueryClientProvider>
-    ,
+    </QueryClientProvider>    
   </React.StrictMode>,
 );

@@ -1,7 +1,7 @@
 import React from 'react'
 import {Container,Grid,Box,Typography,TextField,Button,Paper,Avatar} from '@mui/material'
-import Data from './component/data'
-import DatePicker from './component/datepicker'
+import Data from '../component/data'
+import DatePicker from '../component/datepicker'
 import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -9,17 +9,12 @@ import FaceIcon from '@mui/icons-material/Face';
 
 import {Routes,Route, Link as Links} from 'react-router-dom'
 
-import FormRekamMedik from './pages/FormRekamMedik';
-import FormPasien from './pages/FormPasien';
-import FormDokter from './pages/FormDokter';
-import CariPasien from './pages/CariPasien';
-import PasienDetail from './pages/PasienDetail'
-import PasienList from './pages/PasienList'
-import RekamMedikList from './pages/RekamMedikList'
-import DokterList from './pages/DokterList'
-import DokterDetail from './pages/DokterDetail'
-
-import image from '../public/image.png'
+import FormRekamMedik from './FormRekamMedik';
+import FormPasien from './FormPasien';
+import CariPasien from './CariPasien';
+import PasienDetail from './PasienDetail'
+import PasienList from './PasienList'
+import RekamMedikList from './RekamMedikList'
 
 export default function Layout() {
   return (
@@ -40,41 +35,37 @@ export default function Layout() {
                 </Grid>
                 <Grid item container spacing={2} flexDirection='column'>
                     <Grid item>
-                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<HomeIcon />} component={Links} to="/">Home</Button>
+                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<HomeIcon />}>Home</Button>
                     </Grid>
                     <Grid item>
-                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<FaceIcon />} component={Links} to="/pasien/list">Pasien</Button>
+                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<FaceIcon />}>Pasien</Button>
                     </Grid>
                     <Grid item>
-                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<PersonIcon />} component={Links} to="/dokter/list">Dokter</Button>
+                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<PersonIcon />}>Dokter</Button>
                     </Grid>
                     <Grid item>
-                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<LibraryBooksIcon />} component={Links} to="/rekam_medik/list">Rekam Medik</Button>
+                        <Button variant='text' size='large' sx={{ color: 'white' }} startIcon={<LibraryBooksIcon />}>Rekam Medik</Button>
                     </Grid>
                 </Grid>
             </Grid>
             <Grid item>
-                <img src={image} alt='image' width='200' height='200'  />
+                <img src='image.png' alt='image' width='200' height='200'  />
             </Grid>
         </Grid>
-        <Grid item container xs={10} component={Paper} sx={{ p: 2, maxHeight: '95vh', minHeight: '95vh'}} spacing={1}>
+        <Grid item container xs={10} component={Paper} sx={{ p: 2, maxHeight: '95vh'}} spacing={1}>
             <Grid item container xs={8} sx={{ px: 2}} display='block'>
-                {/* <Grid item container justifyContent='space-between' sx={{  mb: 3, pr: 2}}>
+                <Grid item  container justifyContent='space-between' sx={{  mb: 3}}>
                     <Typography variant='h6'>Welcome</Typography>
                     <TextField size='small' placeholder='Search Patient Here' />
-                </Grid> */}
-                <Grid item container sx={{ minHeight: '100%', maxHeight: '79vh', overflow: 'scroll', pr: 2}}>
+                </Grid>
+                <Grid item container sx={{ maxHeight: '45%', overflow: 'scroll', pr: 2}}>
                     <React.Fragment>    
                         <Routes>                                                            
-                            <Route path="/" element={<CariPasien />} />   
                             <Route path="/pasien/list" element={<PasienList />} />   
                             <Route path="/rekam_medik/list" element={<RekamMedikList />} />
-                            <Route path="/dokter/list" element={<DokterList />} />
-                            <Route path="/dokter/:dokter_id" element={<DokterDetail />} />   
                             <Route path="/pasien/:pasien_id" element={<PasienDetail />} />   
                             <Route path="/rekam_medik" element={<FormRekamMedik />} />                
-                            <Route path='/pasien/:type/:pasien_id' element={<FormPasien />} />
-                            <Route path='/dokter/:type/:dokter_id' element={<FormDokter />} />
+                            <Route path='/pasien/:type/:pasien_id' element={<FormPasien />} />                      
                             <Route path="/rekam/:type/:pasien_id/:rekam_id" element={<FormRekamMedik />} />                                       
                         </Routes>           
                     </React.Fragment> 

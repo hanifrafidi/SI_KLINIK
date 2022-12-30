@@ -30,17 +30,18 @@ export default function Pasien() {
   }    
 
   return (    
-    <Container maxWidth='lg' sx={{ mt: 3}}>               
-      <Paper sx={{ mt: 2, p: 3}}>
-        <Box sx={{ display : 'flex', alignItems: 'center', justifyContent:'space-between'}}>
-          <Typography variant='h6'>Data Pasien</Typography>
-          <Button variant='contained' component={Link} to={'/pasien/insert/0'}>Tambah Pasien Baru</Button>
-        </Box>        
-      </Paper>            
-      <Box sx={{ mt: 2}}>
+    <Grid container>                     
+        <Grid item container justifyContent='space-between' alignItems='center'>
+          <Grid item>
+            <Typography variant='h6'>Data Pasien</Typography>
+          </Grid>
+          <Grid item>
+            <Button variant='contained' component={Link} to={'/pasien/insert/0'}>Tambah Pasien Baru</Button>
+          </Grid>          
+        </Grid>              
+      <Grid item sx={{ mt: 4}} xs={12}>
         <PasienTable />    
-      </Box>      
-      
-    </Container>
+      </Grid>                  
+    </Grid>
   )
 }

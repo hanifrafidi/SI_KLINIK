@@ -14,12 +14,11 @@ import Select from '@mui/material/Select';
 import axios from "axios";
 import {useMutation, useQuery} from 'react-query'
 import {useForm, Controller} from 'react-hook-form'
-import {useParams, useNavigate} from 'react-router-dom'
+import {useParams} from 'react-router-dom'
 import PasienService from '../../service/PasienService';
-import Alert from '../component/Alert'
 
-export default function AddressForm({ history }) {  
-  const navigate = useNavigate();
+export default function AddressForm() {  
+
   const {pasien_id,type} = useParams()
   const titles = [
     'namaDepan',
@@ -35,32 +34,23 @@ export default function AddressForm({ history }) {
 
   const { register, handleSubmit, setValue, control} = useForm({        
   });
-  const [alertStatus, setAlert] = React.useState('')
 
   
-  const createData = useMutation((data) => {    
-    PasienService.create(data)
-    .then( response => {
-      console.log(response) 
-      setAlert({ type : 'create', message : response.response })
-      setTimeout(() => {navigate(-1)}, 2000)      
-    })    
-    .catch(err => { console.log(err) })
-  })
-
-  const updateData = useMutation((data) => {    
-    PasienService.update(pasien_id,data).then( response => {
-      // console.log(response) 
-      setAlert({ type : 'update', message : response })
-      setTimeout(() => {navigate(-1)}, 2000)      
-    })    
-    .catch(err => { 
-      setAlert({ type : 'error', message : err.data })      
-    })
-  })          
+  const createData = async (data) => {
+    const {response} = await PasienService.create(data)    
+    console.log(response)
+  }    
+  const updateData = async (datas) => {
+    // return await PasienService.update(pasien_id, datas).then(response => console.log(response))    
+    const {response} = await PasienService.update(pasien_id, datas)
+    return console.log(response)
+  }
+  
+  const createMutation = useMutation(createData)  
+  const updateMutation = useMutation(updateData)  
 
   const onSubmit = data => {    
-    type === 'edit' ? updateData.mutate(data) : createData.mutate(data)    
+    type === 'edit' ? updateMutation.mutate(data) : createMutation.mutate(data)    
     // console.log(data)
   }  
 
@@ -68,51 +58,51 @@ export default function AddressForm({ history }) {
     if(type === 'edit') {      
       PasienService.getOne(pasien_id).then((data) => {
         titles.forEach( title => setValue(title, data[title]))
-        // console.log(data)
+        console.log(data)
       })      
     }
     // console.log(rekam)
   },[])
 
   return (
-    <Grid container>
-      <Grid item>      
-        <Typography variant="h5" sx={{ my: 2 }}>
-          Form Pasien
+    <Container maxWidth='sm'>
+      <Paper sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>      
+        <Typography component="h1" variant="h4" align="center" sx={{ my: 2 }}>
+          Pasien Baru
         </Typography>
         {                     
-          <form onSubmit={handleSubmit(onSubmit)}>        
-        <Grid container spacing={3} sx={{ pt: 1}}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+        <Typography variant="h6" gutterBottom sx={{ my: 6}}>
+          
+        </Typography>
+        <Grid container spacing={4}>
           <Grid item xs={12} sm={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Nama Depan</Typography>
             <TextField                          
               fullWidth            
-              size='small'
-              placeholder='Nama Depan'               
+              variant="standard"
+              label='Nama Depan'                            
               {...register('namaDepan')}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Nama Belakang</Typography>
             <TextField
-              placeholder='Nama Belakang'              
+              label='Nama Belakang'              
               fullWidth            
-              size='small'              
+              variant="standard"              
               {...register('namaBelakang')}
             />
-          </Grid>          
-          <Grid item xs={3} >
-            <Typography variant='body1' sx={{ mb: 1}}>Umur</Typography>
-            <TextField
-              placeholder='Umur'
-              fullWidth            
-              size='small'              
-              {...register('umur')}
-            />
           </Grid>
-          <Grid item xs={4.5}>            
-            <Typography variant='body1' sx={{ mb: 1}}>Jenis Kelamin</Typography>
-            <FormControl size='small' sx={{ minWidth: '100%' }}>              
+          <Grid item xs={12}>
+            <TextField
+              label='Alamat'
+              fullWidth            
+              variant="standard"
+              {...register('alamat')}
+            />
+          </Grid>        
+          <Grid item xs={12} sm={6}>            
+            <FormControl variant="standard" sx={{ minWidth: '100%' }}>
+              <InputLabel id="jenisKelamin">Jenis Kelamin</InputLabel>
               <Controller                
                 name="jenisKelamin"
                 control={control}
@@ -122,7 +112,7 @@ export default function AddressForm({ history }) {
                     <Select          
                       name='jenisKelamin' 
                       defaultValue=''   
-                      onChange={onChange}                      
+                      onChange={onChange}
                       value={value}                      
                     >
                       <MenuItem value=''></MenuItem>
@@ -133,11 +123,18 @@ export default function AddressForm({ history }) {
                 )}
               />
             </FormControl>
-          </Grid>          
-          <Grid item xs={4.5} >            
-            <Typography variant='body1' sx={{ mb: 1}}>Pekerjaan</Typography>
-            <FormControl size='small' sx={{ minWidth: '100%' }}>
-              
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label='Umur'
+              fullWidth            
+              variant="standard"              
+              {...register('umur')}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>            
+            <FormControl variant="standard" sx={{ minWidth: '100%' }}>
+              <InputLabel id="pekerjaan">Pekerjaan</InputLabel>
               <Controller                
                 name="pekerjaan"
                 control={control}
@@ -160,55 +157,37 @@ export default function AddressForm({ history }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Nomor Telepon</Typography>
             <TextField 
-              placeholder='No Telepon'           
+              label='No Telepon'           
               fullWidth            
-              size='small'
+              variant="standard"
               {...register('notelp')}
             />
           </Grid>          
           <Grid item xs={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Alamat</Typography>
-            <TextField
-              placeholder='Alamat'
-              fullWidth            
-              size='small'
-              multiline
-              rows={5}
-              {...register('alamat')}
-            />
-          </Grid>        
-          <Grid item xs={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Alergi</Typography>
             <TextField 
-              placeholder='Alergi'           
+              label='Alergi'           
               fullWidth            
-              size='small'              
-              multiline
-              rows={5}
+              variant="standard"
               {...register('alergi')}
             />
           </Grid>          
           <Grid item xs={6}>
-            <Typography variant='body1' sx={{ mb: 1}}>Penyakit</Typography>
             <TextField            
-              placeholder='Penyakit'
-              fullWidth        
-              size='small'                             
-              multiline
-              rows={5}
+              label='Penyakit'
+              fullWidth            
+              variant="standard"              
               {...register('penyakit')}
             />
           </Grid> 
-          <Grid item container justifyContent='flex-end'>
-            <Button type='submit' variant='contained'>Simpan Data</Button>
+          <Grid item xs={12} sx={{ mt: 5}}>
+            <Button type='submit' variant='contained' fullWidth>Simpan</Button>
           </Grid>
         </Grid>
         </form>
-        }        
-      </Grid>
-      { alertStatus ? <Alert key={Math.random()} type={alertStatus.type} message={alertStatus.message} /> : null}
-    </Grid>
+        }
+        
+      </Paper>
+    </Container>
   );
 }

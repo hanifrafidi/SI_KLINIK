@@ -5,21 +5,49 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Stack,
+  Divider,
+  Grid,
+  Avatar,
+  IconButton
+} from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import {useQuery} from 'react-query'
 import {Link, useNavigate} from 'react-router-dom'
 import PasienService from '../../service/PasienService'
-import { Typography } from '@mui/material';
-import axios from 'axios'
+import Dialog from '../component/Dialog'
+import Backdrop from '../component/Backdrop'
 
 export default function PasienTable() {      
+  const [dialog, setDialog] = React.useState(false)
+  const [backdrop, setBackdrop] = React.useState(false)
+  const [hapus, setHapus] = React.useState('')
 
   const navigate = useNavigate();    
 
   const openPasienPage = (id) => {
 
     navigate('/pasien/' + id);
+  }
+
+  const confirmHapus = (id) => {
+    setHapus(id);
+    setDialog(true)
+  }
+
+  const deleteRecord = async () => {
+    setBackdrop(true)
+    await PasienService.delete(hapus).then((response) => console.log(response))
+    setHapus('')    
+    setTimeout(() => setBackdrop((prevState) => prevState = false), 2000)
   }
 
   const [pasienData, setPasienData] = React.useState([])
@@ -41,16 +69,17 @@ export default function PasienTable() {
   }, [])
   
   return (        
-    <TableContainer component={Paper}>
+    <>
+    <TableContainer>
       
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: '100%' }} aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell>Nama</TableCell>
             <TableCell>Alamat</TableCell>
             <TableCell>Umur</TableCell>
             <TableCell>No Telepon</TableCell>            
-            {/* <TableCell>Option</TableCell> */}
+            <TableCell>Option</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>                   
@@ -64,15 +93,19 @@ export default function PasienTable() {
             pasienData.map((item) => (
                 <TableRow
                 key={item._id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}
-                onClick={() => openPasienPage(item._id)}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}                
                 >                
-                <TableCell component="th" scope="row" >
+                <TableCell component="th" scope="row" onClick={() => openPasienPage(item._id)}>
                     {item.namaDepan}
                 </TableCell>
                 <TableCell>{item.alamat}</TableCell>
                 <TableCell>{item.umur}</TableCell>
-                <TableCell>{item.notelp}</TableCell>                
+                <TableCell>{item.notelp}</TableCell> 
+                <TableCell>
+                    <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/pasien/edit/' + item._id}><EditIcon /></IconButton>
+                    <IconButton aria-label='delete' color='error' size='small'  onClick={() => confirmHapus(item._id) }><DeleteIcon /></IconButton>
+                </TableCell>
+                                 
                 </TableRow>
             ))                         
             :
@@ -81,41 +114,11 @@ export default function PasienTable() {
         </TableBody>
       </Table>
     </TableContainer>
-    );
-  
-  
-}
-
-    // <TableContainer component={Paper}>
-    //   {console.log(pasien)}
-    //   <Table sx={{ minWidth: 650 }} aria-label="simple table">
-    //     <TableHead>
-    //       <TableRow>
-    //         <TableCell>Nama</TableCell>
-    //         <TableCell align="right">Alamat</TableCell>
-    //         <TableCell align="right">Umur</TableCell>
-    //         <TableCell align="right">No Telepon</TableCell>            
-    //         {/* <TableCell align="right">Option</TableCell> */}
-    //       </TableRow>
-    //     </TableHead>
-    //     <TableBody>                        
-    //       {                    
-    //         pasien.data.map((item) => (
-    //             <TableRow
-    //             key={item._id}
-    //             sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}
-    //             onClick={() => openPasienPage(item._id)}
-    //             >
-    //             <TableCell component="th" scope="row">
-    //                 {item.namaDepan}
-    //             </TableCell>
-    //             <TableCell align="right">{item.alamat}</TableCell>
-    //             <TableCell align="right">{item.umur}</TableCell>
-    //             <TableCell align="right">{item.notelp}</TableCell>                
-    //             </TableRow>
-    //         ))            
-    //       }
-    //     </TableBody>
-    //   </Table>
-    // </TableContainer>
-    // );
+    <Dialog isOpen={dialog} setIsOpen={() => setDialog(!dialog)} confirm={() => deleteRecord()} />
+    <Backdrop isOpen={backdrop} setIsOpen={() => setBackdrop(!backdrop)} />
+    {console.log(hapus)}
+    {console.log('dialog : ' + dialog)}
+    {console.log('backdrop : ' + backdrop)}
+    </>
+    );    
+}    

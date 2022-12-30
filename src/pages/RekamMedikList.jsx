@@ -28,15 +28,15 @@ export default function RekamMedikList() {
   }    
 
   return (    
-    <Container maxWidth='lg' sx={{ mt: 3}}>               
-      <Paper sx={{ mt: 2, p: 3}}>
+    <Grid container>               
+      <Grid item>
         <Box sx={{ display : 'flex', alignItems: 'center', justifyContent:'space-between'}}>
           <Typography variant='h6'>Rekam Medik</Typography>          
         </Box>        
-      </Paper>            
-      <Box sx={{ mt: 2}}>
+      </Grid>            
+      <Grid item sx={{ mt: 5}}>
         <RekamMedikTable id_pasien={0} />    
-      </Box>            
-    </Container>
+      </Grid>            
+    </Grid>
   )
 }
