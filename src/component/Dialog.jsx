@@ -6,29 +6,48 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-export default function AlertDialog({ confirm, isOpen, setIsOpen }) {
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
-  const [open, setOpen] = React.useState(isOpen);
+export default function AlertDialog({ deleteStatus, setDeleteStatus, confirmDelete }) {
+
+  const [dialogs, setDialogs] = React.useState(false);
+  const [backdrops, setBackdrops] = React.useState(false);
 
   const handleClickOpen = () => {
-    setOpen(true);
+    setDialogs(true)    
+    setBackdrops(true)
   };
 
   const handleClose = () => {
-    setOpen(false);
-    setIsOpen(false);
+    setDialogs(false)
+    setBackdrops(false)
+    // setDialog(false);
+    // setBackdrop(false)
+    setDeleteStatus('')
   };
 
   const handleConfirm = () => {
-    confirm(true)
-    setIsOpen(false);
+    setDeleteStatus('confirm')
+    confirmDelete()
+
+    // setDialogs(false)
+    // setTimeout(() => {      
+    //   setBackdrops(false)
+    // }, 2000)    
   }
 
+  React.useEffect(()=> {
+    if(deleteStatus === 'confirm'){
+      console.log(deleteStatus)
+    }
+    
+  },[])
+
   return (
-    <div> 
-        {console.log(isOpen)}     
+    <div>         
       <Dialog
-        open={isOpen}
+        open={deleteStatus === 'ask' ? true : false}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -48,6 +67,13 @@ export default function AlertDialog({ confirm, isOpen, setIsOpen }) {
           </Button>
         </DialogActions>
       </Dialog>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={deleteStatus === 'confirm' ? true : false}
+        onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 }

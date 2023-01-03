@@ -39,7 +39,7 @@ export default function Dokter() {
             <Button variant='contained' component={Link} to={'/dokter/insert/0'}>Tambah Dokter Baru</Button>
           </Grid>          
         </Grid>              
-      <Grid item xs={12} sx={{ minHeight: '80%'}}>
+      <Grid item xs={12} sx={{ mt: 4, minHeight: '80%'}}>
         <DokterTable />    
       </Grid>            
     </Grid>

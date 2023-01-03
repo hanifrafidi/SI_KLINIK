@@ -19,7 +19,7 @@ import RekamMedikList from './pages/RekamMedikList'
 import DokterList from './pages/DokterList'
 import DokterDetail from './pages/DokterDetail'
 
-import image from '../public/image.png'
+import image from '../src/image.png'
 
 export default function Layout() {
   return (

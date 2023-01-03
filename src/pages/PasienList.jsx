@@ -39,7 +39,7 @@ export default function Pasien() {
             <Button variant='contained' component={Link} to={'/pasien/insert/0'}>Tambah Pasien Baru</Button>
           </Grid>          
         </Grid>              
-      <Grid item sx={{ mt: 4}} xs={12}>
+      <Grid item sx={{ mt: 4, minHeight: '80%'}} xs={12}>
         <PasienTable />    
       </Grid>                  
     </Grid>

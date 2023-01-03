@@ -13,24 +13,18 @@ import Select from '@mui/material/Select';
 
 import DatePicker from '../pages/Datepicker'
 
-import axios from "axios";
 import {useMutation, useQuery} from 'react-query'
 import {useForm, Controller} from 'react-hook-form'
-import {useParams} from 'react-router-dom'
+import {useParams, useNavigate} from 'react-router-dom'
 import PasienService from '../../service/PasienService';
 import RekamMedikService from '../../service/RekamMedikService';
+import Alert from '../component/Alert'
+import * as Yup from 'yup'
 
 export default function AddressForm() {
+  const navigate = useNavigate();
   const {type, rekam_id, pasien_id} = useParams();    
-  const { register, handleSubmit, setValue, control} = useForm({    
-    defaultValues: {
-      pasien_id : pasien_id,
-      dokter : '',
-      diagnosa : '',
-      tindakan : '',
-      tanggal: new Date().toString(),
-  }
-  });
+  const [alertStatus, setAlert] = React.useState('')
   const titles = [
     'diagnosa',
     'dokter',
@@ -45,24 +39,74 @@ export default function AddressForm() {
   
   const pasien = useQuery("pasien", () => PasienService.getOne(pasienid))    
 
-  const insertData = async (input) => {
-    const {response} = await RekamMedikService.create(input)    
-    console.log(response)
-  }    
-  const updateData = async (input) => {
-    const {response} = await RekamMedikService.update(rekam_id,input)
-    console.log(response)
-  }    
+  const yupResolver = validationSchema =>
+  React.useCallback(
+    async data => {
+      try {
+        const values = await validationSchema.validate(data, {
+          abortEarly: false
+        });
 
-  const createRekam = useMutation(insertData)
-  const updateRekam = useMutation(updateData)
+        return {
+          values,
+          errors: {}
+        };
+      } catch (errors) {
+        return {
+          values: {},
+          errors: errors.inner.reduce(
+            (allErrors, currentError) => ({
+              ...allErrors,
+              [currentError.path]: {
+                type: currentError.type ?? "validation",
+                message: currentError.message
+              }
+            }),
+            {}
+          )
+        };
+      }
+    },
+    [validationSchema]
+  );
+
+  const validationSchema = Yup.object().shape({
+    diagnosa: Yup.string()
+        .required('Diagnosa is required'),
+    tindakan: Yup.string()
+        .required('Tindakan is required'),
+    dokter: Yup.string()
+        .required('Dokter is required'),
+  })
+
+  const { register, handleSubmit, setValue, control, formState: { errors }} = useForm({       
+    resolver: yupResolver(validationSchema) 
+  });
+
+  const createData = useMutation((data) => {    
+    RekamMedikService.create(data)
+    .then( response => {
+      console.log(response) 
+      setAlert({ type : 'create', message : response.response })
+      setTimeout(() => {navigate(-1)}, 2000)      
+    })    
+    .catch(err => { console.log(err) })
+  })
+
+  const updateData = useMutation((data) => {    
+    RekamMedikService.update(rekam_id,data).then( response => {
+      // console.log(response) 
+      setAlert({ type : 'update', message : response })
+      setTimeout(() => {navigate(-1)}, 2000)      
+    })    
+    .catch(err => { 
+      setAlert({ type : 'error', message : err.data })      
+    })
+  })          
 
   const onSubmit = data => {    
-    type === 'insert' ? 
-    createRekam.mutate(data) 
-    :
-    updateRekam.mutate(data)
-
+    type === 'edit' ? updateData.mutate(data) : createData.mutate(data)    
+    // console.log(data)
   }  
 
   React.useEffect(() => {
@@ -72,7 +116,7 @@ export default function AddressForm() {
         // console.log(data)
       })      
     }
-    // console.log(rekam)
+    // console.log(type)
   },[])
 
   return (
@@ -94,7 +138,7 @@ export default function AddressForm() {
               <Grid item>
                 <Typography variant='h6' sx={{ mb: 1}}>Pasien</Typography>
                 <Typography variant='body1' sx={{ mb: 1}}>{pasien.data.namaDepan}</Typography>
-                <input type="text" value={pasien.data._id} {...register('pasien_id')} hidden />
+                <input type="text" value={pasien.data._id} {...register('pasien_id')} hidden />                
               </Grid>
               
             }
@@ -102,19 +146,20 @@ export default function AddressForm() {
           <Grid item xs={6}>
             <FormControl size='small' sx={{ minWidth: '100%' }}>
               <Typography variant='body1' sx={{ mb: 1}}>Dokter</Typography>
-              <Controller                
+              <Controller                                    
                 name="dokter"
                 control={control}
                 defaultValue=''
                 render={({ field: { onChange, value } }) => (                
                   
                     <Select          
+                      error = {errors.dokter ? true : false}
                       name='dokter' 
-                      defaultValue=''   
+                      defaultValue={0}   
                       onChange={onChange}
                       value={value}                      
                     >
-                      <MenuItem value=''></MenuItem>
+                      <MenuItem value={0}></MenuItem>
                       <MenuItem value='laki'>Laki</MenuItem>
                       <MenuItem value='perempuan'>Perempuan</MenuItem>              
                     </Select>
@@ -122,11 +167,13 @@ export default function AddressForm() {
                 )}
               />              
             </FormControl>
+            <Typography variant='subtitle1' color='error'>{errors.dokter ? errors.dokter.message : ''}</Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Tanggal</Typography>
             <Controller                
                 name="tanggal"
+                defaultValue={new Date()}
                 control={control}                
                 render={({ field: { onChange, value } }) => (                                                      
                     <DatePicker type={type} name='tanggal' onChange={onChange} value={value} />                     
@@ -136,22 +183,26 @@ export default function AddressForm() {
           <Grid item xs={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Diagnosa</Typography>
             <TextField
+              error = { errors.diagnosa ? true : false}     
               placeholder='Diagnosa'
               multiline
               rows={4}            
               {...register('diagnosa')}              
               fullWidth
             />
+            <Typography variant='subtitle1' color='error'>{errors.diagnosa ? errors.diagnosa.message : ''}</Typography>
           </Grid>
           <Grid item xs={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Tindakan</Typography>
             <TextField
+              error = { errors.tindakan ? true : false}     
               placeholder='Tindakan'
               multiline
               rows={4}            
               {...register('tindakan')}              
               fullWidth
             />
+            <Typography variant='subtitle1' color='error'>{errors.tindakan ? errors.tindakan.message : ''}</Typography>
           </Grid>                
           <Grid item container justifyContent='flex-end'>
             <Button
@@ -165,6 +216,7 @@ export default function AddressForm() {
         
         </form>       
       </Grid>
+      { alertStatus ? <Alert key={Math.random()} type={alertStatus.type} message={alertStatus.message} /> : null}      
     </Grid>
   );
 }

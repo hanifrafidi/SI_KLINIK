@@ -1,10 +1,4 @@
 import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import {
   Box,
   Container,
@@ -20,120 +14,109 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import {useQuery} from 'react-query'
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import {useQuery, useQueryClient, useMutation} from 'react-query'
 import {Link, useNavigate} from 'react-router-dom'
 import DokterService from '../../service/DokterService'
+import Dialog from '../component/Dialog'
 
 export default function DokterTable() {      
-
   const navigate = useNavigate();    
+  const queryClient = useQueryClient()
+  const [hapus, setHapus] = React.useState('')
+  const [deleteStatus, setDeleteStatus] = React.useState('')
+  const [dokterData, setDokter] = React.useState([])
 
   const openDokterPage = (id) => {
-
     navigate('/dokter/' + id);
   }
 
-  const deleteRecord = async (dokter_id) => {
-    return await DokterService.delete(dokter_id).then((response) => console.log(response))
+  const confirmHapus = (id) => {
+    setHapus(id);
+    setDeleteStatus('ask')    
   }
+  
+  const deleteDokter = useMutation({
+    mutationFn : () => DokterService.delete(hapus),
+    onSuccess: data => {
+      queryClient.invalidateQueries(['dokter'])
+      setHapus('')      
+      setTimeout(() => setDeleteStatus(''), 2000) 
+      // setAlert({ type : 'create', message : 'data berhasil dihapus' })
+      console.log(data)        
+    },
+    onError: data => {
+      setHapus('')      
+      setDeleteStatus('')
+      // setAlert({ type : 'error', message : data.data })        
+    },
+    refetchOnWindowFocus: false,
+  })
 
-  const [dokterData, setDokterData] = React.useState([])
+  const deleteRecord = () => {    
+    // await PasienService.delete(hapus).then((response) => console.log(response))    
+    deleteDokter.mutate(hapus)
+  }    
 
   const dokter = useQuery("dokter", () => 
   DokterService.getAll().then(
     data => { 
-      if(data !== undefined || null) {
-        setDokterData(data);
+      if(typeof data !== 'undefined' || null) {
+        setDokter(data);
       }
   }));
   
-
-  React.useEffect(() => {  
-    // setDokterData(dokter.data);
-    if(dokter.isError){
-      console.log(dokter)
-    }
-  }, [])
+  const rows = dokterData;
+  
+  const columns = [
+    { field: 'nama', headerName: 'Nama', width: 150,
+        renderCell: (( row => (
+            <div onClick={() => navigate('pasien/' + row.id)} style={{cursor : 'pointer'}}>
+                {row.row.namaDepan } {row.row.namaBelakang}
+            </div>
+        )))
+     },
+    { field: 'umur', headerName: 'Umur', width: 150 },
+    { field: 'notelp', headerName: 'No Telepon', width: 150 },
+    // { field: 'alamat', headerName: 'Alamat', width: 150 },
+    { 
+        field: 'option', 
+        headerName: 'Option', 
+        width: 75,
+        renderCell: ( (row) => (
+            <>                
+                <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/dokter/edit/' + row.id}><EditIcon /></IconButton>
+                <IconButton aria-label='delete' color='error' size='small' onClick={() => confirmHapus(row.id)} ><DeleteIcon /></IconButton>
+            </>
+        ))
+    },
+  ];
+  
   
   return (        
-    <TableContainer>
-      
-      <Table sx={{ minWidth: '100%' }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Nama</TableCell>
-            <TableCell>Alamat</TableCell>
-            <TableCell>Umur</TableCell>
-            <TableCell>No Telepon</TableCell>            
-            <TableCell>Option</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>                   
-          {                                                   
-            dokter.isLoading ?
-            <TableRow><TableCell>Loading...</TableCell></TableRow>:
-            dokter.isError ?
-            <TableRow><TableCell>Error cek koneksi anda</TableCell></TableRow>:
-            typeof dokterData !== 'undefined' ?           
-            // console.log(dokterData)
-            dokterData.map((item) => (
-                <TableRow
-                key={item._id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}                
-                >                
-                <TableCell component="th" scope="row" onClick={() => openDokterPage(item._id)}>
-                    {item.namaDepan}
-                </TableCell>
-                <TableCell>{item.alamat}</TableCell>
-                <TableCell>{item.umur}</TableCell>
-                <TableCell>{item.notelp}</TableCell>                
-                <TableCell>
-                    <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/dokter/edit/' + item._id}><EditIcon /></IconButton>
-                    <IconButton aria-label='delete' color='error' size='small'  onClick={() => deleteRecord(item._id)}><DeleteIcon /></IconButton>                    
-                </TableCell>
-                </TableRow>
-            ))                         
-            :
-            <TableRow><TableCell>Tidak ada data dokter / cek koneksi anda</TableCell></TableRow>
-          }
-        </TableBody>
-      </Table>
-    </TableContainer>
-    );
-  
-  
+    <>
+      <DataGrid
+            rows={rows}
+            columns={columns}
+            pageSize={6} 
+            getRowId={(row)=>row._id}
+            disableColumnFilter
+            disableColumnSelector
+            disableDensitySelector
+            components={{Toolbar : GridToolbar}}
+            componentsProps={{
+              toolbar: {
+                  showQuickFilter: true,
+                  quickFilterProps: {debounceMs: 500},
+                  sx: { p: 2}
+              }
+            }}
+          />
+          <Dialog       
+            deleteStatus={deleteStatus} 
+            setDeleteStatus={(deleteStatus) => setDeleteStatus(deleteStatus)}
+            confirmDelete={() => deleteRecord()}
+          />  
+      </>
+    );  
 }
-
-    // <TableContainer component={Paper}>
-    //   {console.log(dokter)}
-    //   <Table sx={{ minWidth: 650 }} aria-label="simple table">
-    //     <TableHead>
-    //       <TableRow>
-    //         <TableCell>Nama</TableCell>
-    //         <TableCell align="right">Alamat</TableCell>
-    //         <TableCell align="right">Umur</TableCell>
-    //         <TableCell align="right">No Telepon</TableCell>            
-    //         {/* <TableCell align="right">Option</TableCell> */}
-    //       </TableRow>
-    //     </TableHead>
-    //     <TableBody>                        
-    //       {                    
-    //         dokter.data.map((item) => (
-    //             <TableRow
-    //             key={item._id}
-    //             sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}
-    //             onClick={() => openDokterPage(item._id)}
-    //             >
-    //             <TableCell component="th" scope="row">
-    //                 {item.namaDepan}
-    //             </TableCell>
-    //             <TableCell align="right">{item.alamat}</TableCell>
-    //             <TableCell align="right">{item.umur}</TableCell>
-    //             <TableCell align="right">{item.notelp}</TableCell>                
-    //             </TableRow>
-    //         ))            
-    //       }
-    //     </TableBody>
-    //   </Table>
-    // </TableContainer>
-    // );

@@ -1,10 +1,4 @@
 import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import {
   Box,
   Container,
@@ -20,29 +14,26 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import {useQuery} from 'react-query'
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import {useQuery, useQueryClient, useMutation} from 'react-query'
 import {Link, useNavigate} from 'react-router-dom'
 import RekamMedikService from '../../service/RekamMedikService'
 import moment from 'moment'
+import Dialog from '../component/Dialog'
 
 export default function RekamMedikTable(props) {      
 
   const navigate = useNavigate();    
+  const queryClient = useQueryClient()
+  const [hapus,setHapus] = React.useState('')
+  const [rekam_medik, setRekam] = React.useState([])
+  const [deleteStatus, setDeleteStatus] = React.useState('')    
 
-  const openrekam_medikPage = (pasien_id, rekam_id) => {
-
-    navigate('/rekam/edit/'+ pasien_id + '/' + rekam_id);
-  }
-
-  const [RekamMedikData, setRekamMedikData] = React.useState([])
-
-  const rekam_medik = useQuery("rekam_medik", () => 
-  
+  const get_rekam_medik = useQuery("rekam_medik", () =>   
   {
     if(props.pasien_id === 0 || typeof props.pasien_id === "undefined"){
       RekamMedikService.getAll().then(data => {        
-        setRekamMedikData(data)
-        
+        setRekam(data)        
       })
     }else{
       RekamMedikService.getByPasien(props.pasien_id).then(
@@ -52,70 +43,83 @@ export default function RekamMedikTable(props) {
     }
   })
   ;   
-  
-  React.useEffect(() => {      
-    
-  }, [])
 
-  if (rekam_medik.isLoading) {
-        return <p>Loading...          
-        </p>
+  const confirmHapus = (id) => {
+    setHapus(id);
+    setDeleteStatus('ask')    
   }
-  else if(rekam_medik.isError) {
-    return <p>Error: Error Bro      
-    </p>
-  }  
-  else{
-    // return console.log(rekam_medik)
-  return (        
-    <TableContainer >
-      
-      <Table aria-label="simple table">
-        <TableHead>
-          <TableRow>            
-            <TableCell >Pasien</TableCell>
-            <TableCell >Diagnosa</TableCell>
-            <TableCell>Tindakan</TableCell>
-            <TableCell>Dokter</TableCell>            
-            <TableCell>Tanggal</TableCell>
-            <TableCell>Option</TableCell>
-          </TableRow>
-        </TableHead>        
-        <TableBody>                   
-          {                                                   
-            rekam_medik.isLoading ?
-            <TableRow><TableCell>Loading...</TableCell></TableRow>:
-            rekam_medik.isError ?
-            <TableRow><TableCell>Error cek koneksi anda</TableCell></TableRow>:
-            typeof RekamMedikData !== 'undefined' || RekamMedikData.length > 0 ?
-            // console.log(rekam_medikData)
-            RekamMedikData.map((item) => (
-                <TableRow
-                key={item._id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 }, textDecoration: 'none'  }}                
-                >                
-                <TableCell>
-                    {/* {item.pasien_id} */}
-                </TableCell>
-                <TableCell>
-                    {item.diagnosa}
-                </TableCell>
-                <TableCell >{item.tindakan}</TableCell>
-                <TableCell >{item.dokter}</TableCell>
-                <TableCell >{moment(item.tanggal).format('DD-MMM-YY')}</TableCell>
-                <TableCell>
-                    <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/rekam/edit/' + item.pasien_id + '/' + item._id}><EditIcon /></IconButton>
-                    <IconButton aria-label='delete' color='error' size='small'  onClick={() => deleteRecord(item._id)}><DeleteIcon /></IconButton>                    
-                </TableCell>
-                </TableRow>
-            ))                         
-            :            
-            <TableRow><TableCell>Belum ada Rekam Medik</TableCell></TableRow>
-          }
-        </TableBody>                
-      </Table>
-    </TableContainer>
+
+  const deleteRekamMedik = useMutation({
+    mutationFn : () => RekamMedikService.delete(hapus),
+    onSuccess: data => {
+      queryClient.invalidateQueries(['rekam_medik'])
+      setHapus('')
+      setTimeout(() => setDeleteStatus(''), 2000) 
+    },
+    onError: data => {
+      // console.log(data.data)
+      setHapus('')
+      setDeleteStatus('')
+    },    
+  })
+
+  const deleteRecord = (id) => {        
+    deleteRekamMedik.mutate(hapus)
+  }      
+
+  const rows = rekam_medik;
+  
+  const columns = [
+    // { field: 'nama', headerName: 'Nama', width: 150,
+    //     renderCell: (( row => (
+    //         <div onClick={() => navigate('pasien/' + row.id)} style={{cursor : 'pointer'}}>
+    //             {row.row.namaDepan } {row.row.namaBelakang}
+    //         </div>
+    //     )))
+    //  },
+    { field: '_id', headerName: 'ID', width: 150 },
+    { field: 'dokter', headerName: 'Dokter', width: 150 },
+    { field: 'diagnosa', headerName: 'Diagnosa', width: 150 },    
+    { field: 'tindakan', headerName: 'tindakan', width: 150 },
+    { 
+        field: 'option', 
+        headerName: 'Option', 
+        width: 75,
+        renderCell: ( (row) => (
+            <>                
+                <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/rekam/edit/'+ row.row.pasien_id + '/' + row.id}><EditIcon /></IconButton>
+                <IconButton aria-label='delete' color='error' size='small' onClick={() => confirmHapus(row.id)} ><DeleteIcon /></IconButton>
+            </>
+        ))
+    },
+  ];
+    
+  return (            
+    <>
+    <DataGrid
+          rows={rows}
+          columns={columns}
+          pageSize={6} 
+          getRowId={(row)=>row._id}
+          disableColumnFilter
+          disableColumnSelector
+          disableDensitySelector
+          components={{Toolbar : GridToolbar}}
+          componentsProps={{
+            toolbar: {
+                showQuickFilter: true,
+                quickFilterProps: {debounceMs: 500},
+                sx: { p: 2}
+            }
+          }}
+        />
+    <Dialog       
+      deleteStatus={deleteStatus} 
+      setDeleteStatus={(deleteStatus) => setDeleteStatus(deleteStatus)}
+      confirmDelete={() => deleteRecord()}
+    />        
+    </>    
     );
   
-  }
+  
 }

@@ -11,16 +11,17 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
-import axios from "axios";
 import {useMutation, useQuery} from 'react-query'
 import {useForm, Controller} from 'react-hook-form'
 import {useParams, useNavigate} from 'react-router-dom'
 import PasienService from '../../service/PasienService';
 import Alert from '../component/Alert'
+import * as Yup from 'yup'
 
 export default function AddressForm({ history }) {  
   const navigate = useNavigate();
   const {pasien_id,type} = useParams()
+  const [alertStatus, setAlert] = React.useState('')
   const titles = [
     'namaDepan',
     'namaBelakang',
@@ -33,11 +34,57 @@ export default function AddressForm({ history }) {
     'penyakit'
   ]        
 
-  const { register, handleSubmit, setValue, control} = useForm({        
-  });
-  const [alertStatus, setAlert] = React.useState('')
+  const yupResolver = validationSchema =>
+  React.useCallback(
+    async data => {
+      try {
+        const values = await validationSchema.validate(data, {
+          abortEarly: false
+        });
 
+        return {
+          values,
+          errors: {}
+        };
+      } catch (errors) {
+        return {
+          values: {},
+          errors: errors.inner.reduce(
+            (allErrors, currentError) => ({
+              ...allErrors,
+              [currentError.path]: {
+                type: currentError.type ?? "validation",
+                message: currentError.message
+              }
+            }),
+            {}
+          )
+        };
+      }
+    },
+    [validationSchema]
+  );
+
+  const validationSchema = Yup.object().shape({
+    namaDepan: Yup.string()
+        .required('Nama Depan is required'),
+    namaBelakang: Yup.string()
+        .required('Nama Belakang is required'),
+    umur: Yup.number()
+        .required('Umur is required'),
+    notelp: Yup.number()        
+        .required('Nomor telepon is required'),    
+    // alergi: Yup.string()
+    //     .required('Alergi is required'),      
+    // penyakit: Yup.string()
+    //     .required('Penyakit is required')
+  })
+
+  const { register, handleSubmit, setValue, control, formState: { errors }} = useForm({       
+    resolver: yupResolver(validationSchema) 
+  });
   
+    
   const createData = useMutation((data) => {    
     PasienService.create(data)
     .then( response => {
@@ -85,30 +132,36 @@ export default function AddressForm({ history }) {
         <Grid container spacing={3} sx={{ pt: 1}}>
           <Grid item xs={12} sm={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Nama Depan</Typography>
-            <TextField                          
+            <TextField                 
+              error = { errors.namaDepan ? true : false}         
               fullWidth            
               size='small'
               placeholder='Nama Depan'               
               {...register('namaDepan')}
             />
+            <Typography variant='subtitle1' color='error'>{errors.namaDepan ? errors.namaDepan.message : ''}</Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Nama Belakang</Typography>
             <TextField
+              error = { errors.namaBelakang ? true : false}         
               placeholder='Nama Belakang'              
               fullWidth            
               size='small'              
               {...register('namaBelakang')}
             />
+            <Typography variant='subtitle1' color='error'>{errors.namaBelakang ? errors.namaBelakang.message : ''}</Typography>
           </Grid>          
           <Grid item xs={3} >
             <Typography variant='body1' sx={{ mb: 1}}>Umur</Typography>
             <TextField
+              error={ errors.umur ? true : false }
               placeholder='Umur'
               fullWidth            
               size='small'              
               {...register('umur')}
             />
+            <Typography variant='subtitle1' color='error'>{errors.umur ? errors.umur.message : ''}</Typography>
           </Grid>
           <Grid item xs={4.5}>            
             <Typography variant='body1' sx={{ mb: 1}}>Jenis Kelamin</Typography>
@@ -162,11 +215,13 @@ export default function AddressForm({ history }) {
           <Grid item xs={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Nomor Telepon</Typography>
             <TextField 
+              error={ errors.notelp ? true : false}
               placeholder='No Telepon'           
               fullWidth            
               size='small'
               {...register('notelp')}
             />
+            <Typography variant='subtitle1' color='error'>{errors.notelp ? errors.notelp.message : ''}</Typography>
           </Grid>          
           <Grid item xs={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Alamat</Typography>

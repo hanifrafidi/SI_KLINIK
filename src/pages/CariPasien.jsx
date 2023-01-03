@@ -16,6 +16,8 @@ import {useForm} from 'react-hook-form'
 import {useMutation, useQuery} from 'react-query'
 import {useNavigate, Link} from 'react-router-dom'
 
+import Table from '../component/table'
+
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -89,6 +91,8 @@ export default function CariPasien() {
     }
 
   return (
-    <Box></Box>
+    <Box sx={{ minWidth : '100%'}}>
+      <Table />      
+    </Box>
   );
 }

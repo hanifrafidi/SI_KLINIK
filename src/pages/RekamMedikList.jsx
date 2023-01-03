@@ -34,7 +34,7 @@ export default function RekamMedikList() {
           <Typography variant='h6'>Rekam Medik</Typography>          
         </Box>        
       </Grid>            
-      <Grid item sx={{ mt: 5}}>
+      <Grid item sx={{ minWidth: '100%', minHeight: '78%'}}>
         <RekamMedikTable id_pasien={0} />    
       </Grid>            
     </Grid>
