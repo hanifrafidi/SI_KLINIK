@@ -35,6 +35,7 @@ export default function RekamMedikTable(props) {
       RekamMedikService.getAll()
       .then(data => {        
         setRekam(data)        
+        console.log(data)
       })
       .catch(err => { console.log(err.message); })
     }else{
@@ -78,7 +79,11 @@ export default function RekamMedikTable(props) {
         <>{row.pasien.namaDepan} {row.pasien.namaBelakang}</>
       ) )
     },
-    { field: 'dokter', headerName: 'Dokter', width: 150 },
+    { field: 'dokter', headerName: 'dokter', width: 150 ,
+      renderCell :  ( ({row}) => (
+        <>{row.dokter.namaDepan} {row.dokter.namaBelakang}</>
+      ) )
+    },
     { field: 'diagnosa', headerName: 'Diagnosa', width: 150 },    
     { field: 'tindakan', headerName: 'tindakan', width: 150 },
     { 

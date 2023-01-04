@@ -28,10 +28,7 @@ export default function AlertDialog({ deleteStatus, setDeleteStatus, confirmDele
   };
 
   const handleConfirm = () => {
-    setDeleteStatus((hapus) => ({
-      type : 'confirm',
-      id : hapus.id
-    }))
+    setDeleteStatus('confirm')
     confirmDelete()    
   }
 
@@ -45,7 +42,7 @@ export default function AlertDialog({ deleteStatus, setDeleteStatus, confirmDele
   return (
     <div>         
       <Dialog
-        open={deleteStatus.type === 'ask' ? true : false}
+        open={deleteStatus === 'ask' ? true : false}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -67,7 +64,7 @@ export default function AlertDialog({ deleteStatus, setDeleteStatus, confirmDele
       </Dialog>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={deleteStatus.type === 'confirm' ? true : false}
+        open={deleteStatus === 'confirm' ? true : false}
         onClick={handleClose}
       >
         <CircularProgress color="inherit" />
