@@ -57,7 +57,7 @@ export default function PasienTable() {
   const pasien = useQuery("pasien", () => 
   PasienService.getAll().then(
     data => { 
-      if(typeof data !== 'undefined' || null) {
+      if(typeof data !== 'undefined' || data !== null) {
         setPasien(data);
       }
   }));
@@ -67,7 +67,7 @@ export default function PasienTable() {
   const columns = [
     { field: 'nama', headerName: 'Nama', width: 150,
         renderCell: (( row => (
-            <div onClick={() => navigate('pasien/' + row.id)} style={{cursor : 'pointer'}}>
+            <div onClick={() => navigate('/pasien/' + row.id)} style={{cursor : 'pointer'}}>
                 {row.row.namaDepan } {row.row.namaBelakang}
             </div>
         )))

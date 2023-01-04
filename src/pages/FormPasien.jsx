@@ -66,18 +66,24 @@ export default function AddressForm({ history }) {
   );
 
   const validationSchema = Yup.object().shape({
-    namaDepan: Yup.string()
-        .required('Nama Depan is required'),
-    namaBelakang: Yup.string()
-        .required('Nama Belakang is required'),
-    umur: Yup.number()
-        .required('Umur is required'),
+    namaDepan: 
+     Yup.string()
+        .required('nama depan is required'),
+    namaBelakang: 
+     Yup.string()
+        .required('nama belakang is required'),
+    umur: 
+     Yup
+      .number('harus angka')
+      .required('umur is required')
+      .typeError('umur harus angka'),
+    jenisKelamin: 
+     Yup
+        .string()
+        .required('pilih jenis kelamin'),    
     notelp: Yup.number()        
-        .required('Nomor telepon is required'),    
-    // alergi: Yup.string()
-    //     .required('Alergi is required'),      
-    // penyakit: Yup.string()
-    //     .required('Penyakit is required')
+        .required('nomor telepon is required')
+        .typeError('nomor telepon harus angka'),
   })
 
   const { register, handleSubmit, setValue, control, formState: { errors }} = useForm({       
@@ -89,20 +95,24 @@ export default function AddressForm({ history }) {
     PasienService.create(data)
     .then( response => {
       console.log(response) 
-      setAlert({ type : 'create', message : response.response })
+      setAlert({ type : 'success', message : response.response })
       setTimeout(() => {navigate(-1)}, 2000)      
     })    
-    .catch(err => { console.log(err) })
+    .catch(err => { 
+      console.log(err) 
+      setAlert({ type : 'error', message : err.message })
+    })
   })
 
   const updateData = useMutation((data) => {    
     PasienService.update(pasien_id,data).then( response => {
       // console.log(response) 
-      setAlert({ type : 'update', message : response })
+      setAlert({ type : 'success', message : response })
       setTimeout(() => {navigate(-1)}, 2000)      
     })    
     .catch(err => { 
-      setAlert({ type : 'error', message : err.data })      
+      console.log(err) 
+      setAlert({ type : 'error', message : err.message })
     })
   })          
 
@@ -127,6 +137,7 @@ export default function AddressForm({ history }) {
         <Typography variant="h5" sx={{ my: 2 }}>
           Form Pasien
         </Typography>
+        {console.log(errors)}
         {                     
           <form onSubmit={handleSubmit(onSubmit)}>        
         <Grid container spacing={3} sx={{ pt: 1}}>
@@ -139,7 +150,7 @@ export default function AddressForm({ history }) {
               placeholder='Nama Depan'               
               {...register('namaDepan')}
             />
-            <Typography variant='subtitle1' color='error'>{errors.namaDepan ? errors.namaDepan.message : ''}</Typography>
+            <Typography variant='subtitle2' color='error'>{errors.namaDepan ? errors.namaDepan.message : ''}</Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Nama Belakang</Typography>
@@ -150,7 +161,7 @@ export default function AddressForm({ history }) {
               size='small'              
               {...register('namaBelakang')}
             />
-            <Typography variant='subtitle1' color='error'>{errors.namaBelakang ? errors.namaBelakang.message : ''}</Typography>
+            <Typography variant='subtitle2' color='error'>{errors.namaBelakang ? errors.namaBelakang.message : ''}</Typography>
           </Grid>          
           <Grid item xs={3} >
             <Typography variant='body1' sx={{ mb: 1}}>Umur</Typography>
@@ -161,30 +172,34 @@ export default function AddressForm({ history }) {
               size='small'              
               {...register('umur')}
             />
-            <Typography variant='subtitle1' color='error'>{errors.umur ? errors.umur.message : ''}</Typography>
+            <Typography variant='subtitle2' color='error'>{errors.umur ? errors.umur.message : ''}</Typography>
           </Grid>
           <Grid item xs={4.5}>            
             <Typography variant='body1' sx={{ mb: 1}}>Jenis Kelamin</Typography>
             <FormControl size='small' sx={{ minWidth: '100%' }}>              
               <Controller                
                 name="jenisKelamin"
-                control={control}
-                defaultValue=''
+                control={control}  
+                defaultValue=''              
                 render={({ field: { onChange, value } }) => (                
                   
-                    <Select          
-                      name='jenisKelamin' 
-                      defaultValue=''   
+                    <Select        
+                      error={ errors.jenisKelamin ? true : false }  
+                      name='jenisKelamin'   
+                      defaultValue=''                    
                       onChange={onChange}                      
-                      value={value}                      
+                      value={value}     
+                      displayEmpty                                           
                     >
-                      <MenuItem value=''></MenuItem>
+                      <MenuItem value='' disabled><em>Laki / Perempuan</em></MenuItem>
+
                       <MenuItem value='laki'>Laki</MenuItem>
                       <MenuItem value='perempuan'>Perempuan</MenuItem>              
                     </Select>
                   
                 )}
               />
+              <Typography variant='subtitle2' color='error'>{errors.jenisKelamin ? errors.jenisKelamin.message : ''}</Typography>
             </FormControl>
           </Grid>          
           <Grid item xs={4.5} >            
@@ -194,16 +209,17 @@ export default function AddressForm({ history }) {
               <Controller                
                 name="pekerjaan"
                 control={control}
-                defaultValue='tidak bekerja'
+                defaultValue=''
                 render={({ field: { onChange, value } }) => (                
                   
                     <Select          
                       name='pekerjaan' 
-                      defaultValue='tidak bekerja'   
+                      defaultValue=''   
                       onChange={onChange}
                       value={value}                      
+                      displayEmpty
                     >
-                      <MenuItem value='tidak bekerja'>Tidak Bekerja</MenuItem>
+                      <MenuItem value=''>Tidak Bekerja</MenuItem>
                       <MenuItem value='karyawan'>Karyawan</MenuItem>
                       <MenuItem value='swasta'>swasta</MenuItem>              
                     </Select>
@@ -221,7 +237,7 @@ export default function AddressForm({ history }) {
               size='small'
               {...register('notelp')}
             />
-            <Typography variant='subtitle1' color='error'>{errors.notelp ? errors.notelp.message : ''}</Typography>
+            <Typography variant='subtitle2' color='error'>{errors.notelp ? errors.notelp.message : ''}</Typography>
           </Grid>          
           <Grid item xs={6}>
             <Typography variant='body1' sx={{ mb: 1}}>Alamat</Typography>
@@ -263,7 +279,7 @@ export default function AddressForm({ history }) {
         </form>
         }        
       </Grid>
-      { alertStatus ? <Alert key={Math.random()} type={alertStatus.type} message={alertStatus.message} /> : null}
+      <Alert key={Math.random()} type={alertStatus.type} message={alertStatus.message} />
     </Grid>
   );
 }

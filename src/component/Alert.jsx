@@ -20,7 +20,7 @@ export default function AlertMassage({ message, type }) {
   return (    
     <>
     { 
-     type === 'create' ? 
+     type === 'success' ? 
         <div>
         <Snackbar
             anchorOrigin={{
@@ -34,7 +34,7 @@ export default function AlertMassage({ message, type }) {
             <Alert severity='success'>{message}</Alert>
         </Snackbar>
         </div>
-      : type === 'update' ? 
+      : type === 'info' ? 
         <div>
             <Snackbar
                 anchorOrigin={{

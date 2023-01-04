@@ -14,14 +14,18 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import {useParams, Link} from 'react-router-dom'
-import {useQuery, useMutation} from 'react-query'
+import {useQuery, useQueryClient, useMutation} from 'react-query'
+import {Link, useNavigate, useParams} from 'react-router-dom'
 import PasienService from '../../service/PasienService'
 import RekamMedikTable from '../component/RekamMedikTable'
+import Dialog from '../component/Dialog'
 
 export default function Pasien() {
   const {pasien_id} = useParams()      
   const [pasienData,setPasienData] = React.useState()
+  const [hapus, setHapus] = React.useState('')
+  const navigate = useNavigate();    
+  const queryClient = useQueryClient()
 
   var pasienid = 0
 
@@ -30,25 +34,35 @@ export default function Pasien() {
   }
     
   const pasien = useQuery("pasien", () => 
-    PasienService.getOne(pasienid))
-  
-  const deleteRecord = async (pasien_id) => {
-    return await PasienService.delete(pasien_id).then((response) => console.log(response))
-  }
+    PasienService.getOne(pasienid)
+    .catch(err => { console.log(err.message); })
+  )        
 
-  const mutation = useMutation(deleteRecord)  
-
-  const onSubmit = data => {    
-    mutation.mutate(data)        
-  }    
+  const deletePasien = useMutation({
+    mutationFn : () => PasienService.delete(hapus.id),
+    onSuccess: data => {
+      queryClient.invalidateQueries(['pasien'])
+      
+      setTimeout(() => setHapus(''), 2000)       
+      setTimeout(() => navigate('/pasien/list'), 2000) 
+      // setAlert({ type : 'create', message : 'data berhasil dihapus' })
+      console.log(data)        
+    },
+    onError: data => {
+      setHapus('')            
+      // setAlert({ type : 'error', message : data.data })        
+    },
+    refetchOnWindowFocus: false,
+  })
 
   return (    
-    <Grid container spacing={10}>               
+    <Grid container spacing={10}>                   
       <Grid item container xs={12} spacing={2} sx={{ minHeight: 260 }}>
           {
-            pasien.isLoading ? <>Loading</> :            
-            pasien.isError ? <>Error Silahkan Cek Koneksi Anda</> 
-            : pasien.data === null || typeof pasien.data === 'undefined' ? <></>
+            pasien.isLoading ? <Grid item>Loading</Grid> :            
+            pasien.isError ? <Grid item>Error Silahkan Cek Koneksi Anda</Grid> 
+            : pasien.data === null || typeof pasien.data === 'undefined' ? 
+            <Grid item>Data tidak ditemukan</Grid>
             :
             <>
               <Grid item xs={12} container justifyContent='space-between' alignItems='center'>
@@ -60,7 +74,7 @@ export default function Pasien() {
                   <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end'}}>
                     {/* <Typography variant='h6'>{pasien.data._id}</Typography> */}                    
                     <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/pasien/edit/' + pasien.data._id}><EditIcon /></IconButton>
-                    <IconButton aria-label='delete' color='error' size='small'  onClick={() => deleteRecord(pasien.data._id)}><DeleteIcon /></IconButton>                    
+                    <IconButton aria-label='delete' color='error' size='small'  onClick={() => setHapus({ type : 'ask', id: pasien.data._id })}><DeleteIcon /></IconButton>                    
                   </Grid>
                 </Grid>
               </Grid>
@@ -104,10 +118,15 @@ export default function Pasien() {
           <Typography variant='h6'>Rekam Medik</Typography>
           <Button variant='contained' component={Link} to={'/rekam/insert/' + pasienid + '/0'}>Tambah Rekam Medik</Button>
         </Box>
-        <Box sx={{ mt: 2}}>
+        <Box sx={{ mt: 2, height: 500}}>
           <RekamMedikTable pasien_id={pasienid}/>
         </Box>
       </Grid>
-    </Grid>
+      <Dialog       
+        deleteStatus={hapus} 
+        setDeleteStatus={(hapus) => setHapus(hapus)}
+        confirmDelete={() => deletePasien.mutate()}
+      />        
+    </Grid>    
   )
 }

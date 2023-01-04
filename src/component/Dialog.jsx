@@ -28,26 +28,24 @@ export default function AlertDialog({ deleteStatus, setDeleteStatus, confirmDele
   };
 
   const handleConfirm = () => {
-    setDeleteStatus('confirm')
-    confirmDelete()
-
-    // setDialogs(false)
-    // setTimeout(() => {      
-    //   setBackdrops(false)
-    // }, 2000)    
+    setDeleteStatus((hapus) => ({
+      type : 'confirm',
+      id : hapus.id
+    }))
+    confirmDelete()    
   }
 
-  React.useEffect(()=> {
-    if(deleteStatus === 'confirm'){
-      console.log(deleteStatus)
-    }
+  // React.useEffect(()=> {
+  //   if(deleteStatus === 'confirm'){
+  //     console.log(deleteStatus)
+  //   }
     
-  },[])
+  // },[])
 
   return (
     <div>         
       <Dialog
-        open={deleteStatus === 'ask' ? true : false}
+        open={deleteStatus.type === 'ask' ? true : false}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -69,7 +67,7 @@ export default function AlertDialog({ deleteStatus, setDeleteStatus, confirmDele
       </Dialog>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={deleteStatus === 'confirm' ? true : false}
+        open={deleteStatus.type === 'confirm' ? true : false}
         onClick={handleClose}
       >
         <CircularProgress color="inherit" />
