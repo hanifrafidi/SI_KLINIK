@@ -11,13 +11,25 @@ export default function table() {
   const navigate = useNavigate()  
   const [pasienData, setPasien] = React.useState([])
 
-  React.useEffect(() => {
-    PasienService.getAll().then((response) => {
-        if(response !== null && typeof response !== 'undefined'){
-            setPasien(response)
-        }
-    })
-  },[])
+  const pasien = useQuery("pasien", () => 
+  PasienService.getAll().then(
+    data => { 
+      if(typeof data !== 'undefined' || data !== null) {
+        setPasien(data);
+      }
+  })
+  .catch(err => {
+    console.log(err.message);
+  })
+  );
+
+  // React.useEffect(() => {
+  //   PasienService.getAll().then((response) => {
+  //       if(response !== null && typeof response !== 'undefined'){
+  //           setPasien(response)
+  //       }
+  //   })
+  // },[])
 
   const rows = pasienData;
   

@@ -68,14 +68,15 @@ export default function Layout() {
                         <Routes>                                                            
                             <Route path="/" element={<CariPasien />} />   
                             <Route path="/pasien/list" element={<PasienList />} />   
-                            <Route path="/rekam_medik/list" element={<RekamMedikList />} />
-                            <Route path="/dokter/list" element={<DokterList />} />
-                            <Route path="/dokter/:dokter_id" element={<DokterDetail />} />   
                             <Route path="/pasien/:pasien_id" element={<PasienDetail />} />   
-                            <Route path="/rekam_medik" element={<FormRekamMedik />} />                
-                            <Route path='/pasien/:type/:pasien_id' element={<FormPasien />} />
-                            <Route path='/dokter/:type/:dokter_id' element={<FormDokter />} />
+                            <Route path='/pasien/:type/:pasien_id' element={<FormPasien />} />                            
+                            <Route path="/rekam_medik/list" element={<RekamMedikList />} />
+                            <Route path="/rekam_medik" element={<FormRekamMedik />} />
                             <Route path="/rekam/:type/:pasien_id/:rekam_id" element={<FormRekamMedik />} />                                       
+                            <Route path="/dokter/list" element={<DokterList />} />
+                            <Route path="/dokter/:dokter_id" element={<DokterDetail />} />                               
+                            <Route path='/dokter/:type/:dokter_id' element={<FormDokter />} />
+                            
                         </Routes>           
                     </React.Fragment> 
                 </Grid>

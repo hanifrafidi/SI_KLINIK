@@ -1,14 +1,14 @@
 {
-  "name": "vite",
+  "name": "SI_KLINIK",
   "version": "5.0.0",
   "private": true,
-  "main": "./public/main.js",
+  "main": "./dist/main.js",
   "scripts": {
     "start": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "esbuild-cjs": "esbuild main.js --format=cjs --outfile=./public/main.js",
-    "electron:dev": "npm run esbuild-cjs && IS_IN_DEVELOPMENT=true electron .",
+    "esbuild-cjs": "esbuild main.js --format=cjs --outfile=./dist/main.js",
+    "electron:dev": "npm run esbuild-cjs && IS_IN_DEVELOPMENT=true electron --trace-warnings .",
     "electron:build": "npm run esbuild-cjs && electron-packager --out=release ."
   },
   "dependencies": {

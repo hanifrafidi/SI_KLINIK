@@ -13,7 +13,7 @@ const request = async (options, store) => {
         return data;
     }
     const onError = (error) => {
-        return Promise.reject(error.response)
+        return Promise.reject(error)
     }
     return client(options).then(onSuccess).catch(onError)
 }

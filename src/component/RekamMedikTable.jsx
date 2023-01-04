@@ -32,14 +32,17 @@ export default function RekamMedikTable(props) {
   const get_rekam_medik = useQuery("rekam_medik", () =>   
   {
     if(props.pasien_id === 0 || typeof props.pasien_id === "undefined"){
-      RekamMedikService.getAll().then(data => {        
+      RekamMedikService.getAll()
+      .then(data => {        
         setRekam(data)        
       })
+      .catch(err => { console.log(err.message); })
     }else{
       RekamMedikService.getByPasien(props.pasien_id).then(
         (data) => {           
-          setRekamMedikData(data);          
+          setRekam(data);          
       })
+      .catch(err => { console.log(err.message); })
     }
   })
   ;   
@@ -69,15 +72,12 @@ export default function RekamMedikTable(props) {
 
   const rows = rekam_medik;
   
-  const columns = [
-    // { field: 'nama', headerName: 'Nama', width: 150,
-    //     renderCell: (( row => (
-    //         <div onClick={() => navigate('pasien/' + row.id)} style={{cursor : 'pointer'}}>
-    //             {row.row.namaDepan } {row.row.namaBelakang}
-    //         </div>
-    //     )))
-    //  },
-    { field: '_id', headerName: 'ID', width: 150 },
+  const columns = [    
+    { field: 'nama', headerName: 'Nama', width: 150 ,
+      renderCell :  ( ({row}) => (
+        <>{row.pasien.namaDepan} {row.pasien.namaBelakang}</>
+      ) )
+    },
     { field: 'dokter', headerName: 'Dokter', width: 150 },
     { field: 'diagnosa', headerName: 'Diagnosa', width: 150 },    
     { field: 'tindakan', headerName: 'tindakan', width: 150 },
@@ -85,10 +85,10 @@ export default function RekamMedikTable(props) {
         field: 'option', 
         headerName: 'Option', 
         width: 75,
-        renderCell: ( (row) => (
+        renderCell: ( ({row}) => (
             <>                
-                <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/rekam/edit/'+ row.row.pasien_id + '/' + row.id}><EditIcon /></IconButton>
-                <IconButton aria-label='delete' color='error' size='small' onClick={() => confirmHapus(row.id)} ><DeleteIcon /></IconButton>
+                <IconButton aria-label='edit' color='primary' size='small'  component={Link} to={'/rekam/edit/'+ row.pasien_id + '/' + row._id}><EditIcon /></IconButton>
+                <IconButton aria-label='delete' color='error' size='small' onClick={() => confirmHapus(row._id)} ><DeleteIcon /></IconButton>
             </>
         ))
     },
