@@ -3,7 +3,7 @@ import axios from 'axios';
 const client = (
     () => {
     return axios.create({
-        baseURL: 'http://localhost:5000',        
+        baseURL: 'https://si-klinik-backend-production.up.railway.app',        
     })}
 )()
 
